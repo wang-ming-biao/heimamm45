@@ -11,9 +11,13 @@
   </el-input>
         <el-input class="passW" show-password placeholder="请输入密码" prefix-icon="el-icon-lock" v-model="password">
   </el-input>
-        <el-input class="cdInput" placeholder="请输入验证码" prefix-icon="el-icon-key" v-model="input2">
-          <img src="http://127.0.0.1/heimamm/public/captcha?type=login" style="width='110px' height='42px'"  alt="">
+        <div class="cdInput">
+          <el-input  placeholder="请输入验证码" prefix-icon="el-icon-key" v-model="input2">
   </el-input>
+        <div class="codeBox">
+          <img src="http://127.0.0.1/heimamm/public/captcha?type=login" style="width='110px' height='42px'"  alt="">
+        </div>
+        </div>
   <el-checkbox class="Privacy" v-model="checked" >我已阅读并同意
      <el-link type="primary">用户协议</el-link>
      和
@@ -67,6 +71,16 @@ export default {
       .cdInput,
       .Privacy {
         margin-bottom: 25px;
+      }
+      .cdInput{
+        display: flex;
+        .codeBox{
+          width: 110px;
+          height: 38px;
+          background-color: #ffffff;
+          border: 1px solid #CCCFD5;
+          border-radius: 4px;
+        }
       }
       // 顶部标题盒子
           .title-box {
