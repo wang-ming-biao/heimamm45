@@ -38,7 +38,7 @@ export default {
       password:"",//密码框
       userCode:"",//验证码
       checked: false,//多选框选定
-      input2:'',//验证码
+      input2:'',//验证码输入框
     }
   },
 };
