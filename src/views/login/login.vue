@@ -48,7 +48,7 @@
       <el-button type="primary" class="my-btn" @click="dialogFormVisible = true">注册</el-button>
     </div>
     <!-- 遮罩层 -->
-    <el-dialog title="用户注册" center :visible.sync="dialogFormVisible"  class="maskTitle" width="35%">
+    <el-dialog title="用户注册" prop="avatar" center :visible.sync="dialogFormVisible"  class="maskTitle" width="35%">
       <el-form :model="form" :rules="rulesShadow" ref="rulesShadow" class="demo-rulesShadow">
         <!-- 用户头像上传 -->
         <el-form-item label="头像"  :label-width="formLabelWidth">
@@ -64,7 +64,7 @@
           </el-upload>
         </el-form-item>
         <!-- 用户昵称 -->
-        <el-form-item  label="昵称" :label-width="formLabelWidth">
+        <el-form-item  label="昵称" prop="name" :label-width="formLabelWidth">
           <el-input v-model="form.name" autocomplete="off"></el-input>
         </el-form-item>
         <!-- 邮箱 -->
@@ -82,22 +82,23 @@
         <!-- 图形码盒子 -->
         <el-form-item label="图形码" prop="GPcode" :label-width="formLabelWidth">
           <el-row>
-            <el-col :span="18">
+            <el-col :span="16">
               <el-input placeholder="请输入右侧的验证码" prefix-icon="el-icon-key" v-model="form.GPcode"></el-input>
             </el-col>
-            <el-col :span="6" class="code-col">
-              <img class="shadow-img" @click="codeChange" :src="codeUrl" alt />
+            <el-col :span="6" :offset="2" class="code-col">
+              <img class="shadow-img" @click="regCodeChange" :src="regCodeUrl" alt />
             </el-col>
           </el-row>
         </el-form-item>
         <!-- 验证码盒子 -->
-        <el-form-item label="验证码" prop="code" :label-width="formLabelWidth">
+        <el-form-item label="验证码" prop="rcode" :label-width="formLabelWidth">
           <el-row>
-            <el-col :span="18">
-              <el-input placeholder="请输入右侧的验证码" prefix-icon="el-icon-key" v-model="form.code"></el-input>
+            <el-col :span="16">
+              <el-input placeholder="请输入右侧的验证码" prefix-icon="el-icon-key" v-model="form.rcode"></el-input>
             </el-col>
-            <el-col :span="6" class="code-col">
-              <img class="shadow-img" @click="codeChange" :src="codeUrl" alt />
+            <el-col :span="6" :offset="2" class="code-col">
+              <!-- <img class="shadow-img" @click="codeChange" :src="regCodeUrl" alt /> -->
+              <el-button type="primary" plain>获取验证码</el-button>
             </el-col>
           </el-row>
         </el-form-item>
@@ -130,30 +131,31 @@ const validatePhone = (rule, value, callback) => {
 };
 
 // 邮箱验证方法:当输入框失去焦点时调用这里的方法
-  // const validateEmail = (rule, value, callback) => {
-  //   if (value === "") {
-  //     callback(new Error("邮箱地址不能为空!"));
-  //   } else {
-  //     // 定义正则
-  //     const reg = /\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/;
-  //     if (reg.test(value) == true) {
-  //       callback();
-  //     } else {
-  //       callback(new Error("请输入正确的邮箱地址!"));
-  //     }
-  //   }
-  // };
+  const validateEmail = (rule, value, callback) => {
+    if (value === "") {
+      callback(new Error("邮箱地址不能为空!"));
+    } else {
+      // 定义正则
+      const reg = /\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/;
+      if (reg.test(value) == true) {
+        callback();
+      } else {
+        callback(new Error("请输入正确的邮箱地址!"));
+      }
+    }
+  };
 
 export default {
   data() {
     return {
-      codeUrl: process.env.VUE_APP_BASEURL + "/captcha?type=login",
+      codeUrl: process.env.VUE_APP_BASEURL + "/captcha?type=login",//登陆验证码地址
+        regCodeUrl: process.env.VUE_APP_BASEURL + "/captcha?type=sendsms",//注册验证码地址
       imageUrl: "", //用户头像上传
       ruleForm: {
         name: "", //输入框绑定
         password: "", //密码框
         code: "", //验证码
-        checked: false //多选框选定
+        checked: false ,//多选框选定
       },
       rules: {
         // 手机号码验证
@@ -180,14 +182,14 @@ export default {
         email: "",//注册用户邮箱
         phone: "",//注册手机号
         GPcode: "",//图形码
-        code:"",//验证码
+        rcode:"",//验证码
         delivery: false,
         type: [],
         resource: "",
         desc: ""
       },
       rulesShadow: {
-        email:[{required: true,trigger: "blur",message:"邮箱不能为空"}],
+        email:[{required: true,trigger: "blur",validator:validateEmail,}],
         // 手机号码验证
         phone: [{ required: true, validator: validatePhone, trigger: "blur" }],
         password: [
@@ -200,12 +202,16 @@ export default {
           }
         ],
         GPcode: [
-          { required: true, message: "请输入验证码", trigger: "blur" },
+          { required: true, message: "请输入图形验证码", trigger: "blur" },
           { min: 4, max: 4, message: "长度必须为4", trigger: "change" }
         ],
         name: [
           { required: true, message: "请输入昵称", trigger: "blur" },
           { min: 4, max: 18, message: "长度在 4 到 20 个字符", trigger: "change" }
+        ],
+        rcode: [
+          { required: true, message: "请输入验证码", trigger: "blur" },
+          { min: 4, max: 4, message: "长度为 4 个字符", trigger: "change" }
         ],
       },
       formLabelWidth: "70px"//调整标题右边对齐
@@ -217,6 +223,13 @@ export default {
       this.codeUrl =
         process.env.VUE_APP_BASEURL +
         "/captcha?type=login&" +
+        Math.random() * 999;
+    },
+    // 注册验证码变化事件
+    regCodeChange(){
+        this.regCodeUrl =
+        process.env.VUE_APP_BASEURL +
+        "/captcha?type=sendsms&" +
         Math.random() * 999;
     },
     // 登录按钮
