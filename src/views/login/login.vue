@@ -48,35 +48,72 @@
       <el-button type="primary" class="my-btn" @click="dialogFormVisible = true">注册</el-button>
     </div>
     <!-- 遮罩层 -->
-<el-dialog title="用户注册" :visible.sync="dialogFormVisible" class="maskTitle">
-  <!-- 用户头像上传 -->
-  <el-upload
-  class="avatar-uploader"
-  action="https://jsonplaceholder.typicode.com/posts/"
-  :show-file-list="false"
-  :on-success="handleAvatarSuccess"
-  :before-upload="beforeAvatarUpload">
-  <img v-if="imageUrl" :src="imageUrl" class="avatar">
-  <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-</el-upload>
-<!-- 用户资料表单 -->
-  <el-form :model="form">
-    <el-form-item label="活动名称" :label-width="formLabelWidth">
-      <el-input v-model="form.name" autocomplete="off"></el-input>
-    </el-form-item>
-  </el-form>
-  <div slot="footer" class="dialog-footer">
-    <el-button @click="dialogFormVisible = false">取 消</el-button>
-    <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
-  </div>
-</el-dialog>
-    <img class="img"  src="../../assets/login_banner_ele.png" alt />
+    <el-dialog title="用户注册" center :visible.sync="dialogFormVisible"  class="maskTitle" width="35%">
+      <el-form :model="form" :rules="rulesShadow" ref="rulesShadow" class="demo-rulesShadow">
+        <!-- 用户头像上传 -->
+        <el-form-item label="头像"  :label-width="formLabelWidth">
+          <el-upload
+            class="avatar-uploader"
+            action="https://jsonplaceholder.typicode.com/posts/"
+            :show-file-list="false"
+            :on-success="handleAvatarSuccess"
+            :before-upload="beforeAvatarUpload"
+          >
+            <img v-if="imageUrl" :src="imageUrl" class="avatar" />
+            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+          </el-upload>
+        </el-form-item>
+        <!-- 用户昵称 -->
+        <el-form-item  label="昵称" :label-width="formLabelWidth">
+          <el-input v-model="form.name" autocomplete="off"></el-input>
+        </el-form-item>
+        <!-- 邮箱 -->
+        <el-form-item label="邮箱" prop="email" :label-width="formLabelWidth">
+          <el-input v-model="form.email" autocomplete="off"></el-input>
+        </el-form-item>
+        <!-- 手机 -->
+        <el-form-item label="手机" prop="phone" :label-width="formLabelWidth">
+          <el-input v-model="form.phone" autocomplete="off"></el-input>
+        </el-form-item>
+        <!-- 密码 -->
+        <el-form-item prop="password" label="密码" :label-width="formLabelWidth">
+          <el-input v-model="form.password" show-password autocomplete="off"></el-input>
+        </el-form-item>
+        <!-- 图形码盒子 -->
+        <el-form-item label="图形码" prop="GPcode" :label-width="formLabelWidth">
+          <el-row>
+            <el-col :span="18">
+              <el-input placeholder="请输入右侧的验证码" prefix-icon="el-icon-key" v-model="form.GPcode"></el-input>
+            </el-col>
+            <el-col :span="6" class="code-col">
+              <img class="shadow-img" @click="codeChange" :src="codeUrl" alt />
+            </el-col>
+          </el-row>
+        </el-form-item>
+        <!-- 验证码盒子 -->
+        <el-form-item label="验证码" prop="code" :label-width="formLabelWidth">
+          <el-row>
+            <el-col :span="18">
+              <el-input placeholder="请输入右侧的验证码" prefix-icon="el-icon-key" v-model="form.code"></el-input>
+            </el-col>
+            <el-col :span="6" class="code-col">
+              <img class="shadow-img" @click="codeChange" :src="codeUrl" alt />
+            </el-col>
+          </el-row>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
+      </div>
+    </el-dialog>
+    <img class="img" src="../../assets/login_banner_ele.png" alt />
   </div>
 </template>
 
 <script>
-// 导入axios
-import axios from 'axios'
+// 导入抽取好的axios
+import {login} from '../../api/login'
 // 当输入框失去焦点时调用这里的方法
 const validatePhone = (rule, value, callback) => {
   if (value === "") {
@@ -92,23 +129,43 @@ const validatePhone = (rule, value, callback) => {
   }
 };
 
+// 邮箱验证方法:当输入框失去焦点时调用这里的方法
+  // const validateEmail = (rule, value, callback) => {
+  //   if (value === "") {
+  //     callback(new Error("邮箱地址不能为空!"));
+  //   } else {
+  //     // 定义正则
+  //     const reg = /\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/;
+  //     if (reg.test(value) == true) {
+  //       callback();
+  //     } else {
+  //       callback(new Error("请输入正确的邮箱地址!"));
+  //     }
+  //   }
+  // };
+
 export default {
   data() {
     return {
-      codeUrl: process.env.VUE_APP_BASEURL + '/captcha?type=login' ,
-      imageUrl: '',//用户头像上传
+      codeUrl: process.env.VUE_APP_BASEURL + "/captcha?type=login",
+      imageUrl: "", //用户头像上传
       ruleForm: {
         name: "", //输入框绑定
         password: "", //密码框
         code: "", //验证码
-        checked: false ,//多选框选定
+        checked: false //多选框选定
       },
       rules: {
         // 手机号码验证
         name: [{ required: true, validator: validatePhone, trigger: "blur" }],
         password: [
           { required: true, message: "请输入密码", trigger: "blur" },
-          { min: 6, max: 18, message: "长度在 6 到 18 个字符", trigger: "change" }
+          {
+            min: 6,
+            max: 18,
+            message: "长度在 6 到 18 个字符",
+            trigger: "change"
+          }
         ],
         code: [
           { required: true, message: "请输入验证码", trigger: "blur" },
@@ -116,98 +173,102 @@ export default {
         ]
       },
       // 遮罩层代码
-       gridData: [{
-          date: '2016-05-02',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄'
-        }, {
-          date: '2016-05-04',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄'
-        }, {
-          date: '2016-05-01',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄'
-        }, {
-          date: '2016-05-03',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄'
-        }],
-        dialogTableVisible: false,
-        dialogFormVisible: false,
-        form: {
-          name: '',
-          region: '',
-          date1: '',
-          date2: '',
-          delivery: false,
-          type: [],
-          resource: '',
-          desc: ''
-        },
-        formLabelWidth: '120px'
+      dialogTableVisible: false,
+      dialogFormVisible: false,
+      form: {
+        name: "",//注册用户名
+        email: "",//注册用户邮箱
+        phone: "",//注册手机号
+        GPcode: "",//图形码
+        code:"",//验证码
+        delivery: false,
+        type: [],
+        resource: "",
+        desc: ""
+      },
+      rulesShadow: {
+        email:[{required: true,trigger: "blur",message:"邮箱不能为空"}],
+        // 手机号码验证
+        phone: [{ required: true, validator: validatePhone, trigger: "blur" }],
+        password: [
+          { required: true, message: "请输入密码", trigger: "blur" },
+          {
+            min: 6,
+            max: 18,
+            message: "长度在 6 到 18 个字符",
+            trigger: "change"
+          }
+        ],
+        GPcode: [
+          { required: true, message: "请输入验证码", trigger: "blur" },
+          { min: 4, max: 4, message: "长度必须为4", trigger: "change" }
+        ],
+        name: [
+          { required: true, message: "请输入昵称", trigger: "blur" },
+          { min: 4, max: 18, message: "长度在 4 到 20 个字符", trigger: "change" }
+        ],
+      },
+      formLabelWidth: "70px"//调整标题右边对齐
     };
   },
   methods: {
-    // 验证码变化事件
-    codeChange(){
-      this.codeUrl = process.env.VUE_APP_BASEURL + '/captcha?type=login&' + Math.random()*999;
+    // 验证码点击变化事件
+    codeChange() {
+      this.codeUrl =
+        process.env.VUE_APP_BASEURL +
+        "/captcha?type=login&" +
+        Math.random() * 999;
     },
     // 登录按钮
-    loginBtn(){
+    loginBtn() {
       if (this.ruleForm.checked == true) {
-        axios({
-        method:"post",
-        url:process.env.VUE_APP_BASEURL + "/login",
-        withCredentials:true,
-        data:{
-              phone: this.ruleForm.name,
-              password: this.ruleForm.password,
-              code:this.ruleForm.code
-        }
-      }).then(res=>{
-        if (res.data.code == 200) {
-          return this.$message({
-          message: "登录成功",
-          type: 'warning'
+        login({
+            phone: this.ruleForm.name,
+            password: this.ruleForm.password,
+            code: this.ruleForm.code
+          
+        }).then(res => {
+          if (res.data.code == 200) {
+            return this.$message({
+              message: "登录成功",
+              type: "warning"
+            });
+          } else {
+            window.console.log(res);
+            return this.$message({
+              message: res.data.message,
+              type: "warning"
+            });
+          }
         });
-        }else {
-          window.console.log(res)
-        return this.$message({
-          message: res.data.message,
-          type: 'warning'
-        });
-        }
-      })
-      }else{
-      this.Agreement();
-      return
+      } else {
+        this.Agreement();
+        return;
       }
-      
     },
     // 错误提示
     Agreement() {
-        this.$message({
-          message: '请确认用户协议之后进行登录',
-          type: 'warning'
-        });
-      },
+      this.$message({
+        message: "请确认用户协议之后进行登录",
+        type: "warning"
+      });
+    },
     // 用户头像上传
-     handleAvatarSuccess(res, file) {
-        this.imageUrl = URL.createObjectURL(file.raw);
-      },
-      beforeAvatarUpload(file) {
-        const isJPG = file.type === 'image/jpeg';
-        const isLt2M = file.size / 1024 / 1024 < 2;
+    handleAvatarSuccess(res, file) {
+      this.imageUrl = URL.createObjectURL(file.raw);
+    },
+    beforeAvatarUpload(file) {
+      const isJPG = file.type === "image/jpeg";
+      const isLt2M = file.size / 1024 / 1024 < 2;
 
-        if (!isJPG) {
-          this.$message.error('上传头像图片只能是 JPG 格式!');
-        }
-        if (!isLt2M) {
-          this.$message.error('上传头像图片大小不能超过 2MB!');
-        }
-        return isJPG && isLt2M;
+      if (!isJPG) {
+        this.$message.error("上传头像图片只能是 JPG 格式!");
       }
+      if (!isLt2M) {
+        this.$message.error("上传头像图片大小不能超过 2MB!");
+      }
+      return isJPG && isLt2M;
+    }
   }
 };
 </script>
@@ -225,7 +286,17 @@ export default {
     rgba(1, 198, 250, 1),
     rgba(20, 147, 250, 1)
   );
-
+  // 头部标题背景颜色
+  .el-dialog__header {
+    background-color: rgba(1, 198, 250, 1);
+  }
+  // 头像上传盒子居中
+  .avatar-uploader {
+    text-align: center;
+  }//遮罩层验证码
+  .shadow-img {
+    width: 100%;
+  }
   // 用户头像上传
   .avatar-uploader .el-upload {
     border: 1px dashed #d9d9d9;
@@ -235,7 +306,7 @@ export default {
     overflow: hidden;
   }
   .avatar-uploader .el-upload:hover {
-    border-color: #409EFF;
+    border-color: #409eff;
   }
   .avatar-uploader-icon {
     font-size: 28px;
@@ -250,9 +321,7 @@ export default {
     height: 178px;
     display: block;
   }
-  .el-dialog__title {
-    text-align: center;
-  } 
+
   // 左侧登录框大盒子
   .left {
     width: 478px;
