@@ -130,6 +130,8 @@ const validatePhone = (rule, value, callback) => {
     }
   }
 };
+// 导入操作token的方法
+import {saveToken} from '../../utils/token.js'
 
 // 邮箱验证方法:当输入框失去焦点时调用这里的方法
   const validateEmail = (rule, value, callback) => {
@@ -249,7 +251,9 @@ export default {
         }).then(res => {
           if (res.data.code == 200) {
             // 保存token
-            window.localStorage.setItem('heimammtoken',res.data.data.token)
+            // window.localStorage.setItem('heimammtoken',res.data.data.token)
+            // 使用抽取的操纵token的方法
+            saveToken(res.data.data.token)
             //登陆成功跳转首页
             this.$router.push('/index')
           } else {

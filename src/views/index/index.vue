@@ -9,7 +9,7 @@
       <div class="right">
         <img :src="user.avatar" class="userPic" alt="">
         <span class="userName">{{user.username}},您好</span>
-        <el-button type="success" class="btnSize" size="mini">退出</el-button>
+        <el-button type="success" class="btnSize" size="mini" @click="logout">退出</el-button>
       </div>
     </el-header>
     <el-container>
@@ -52,7 +52,9 @@
 </template>
 
 <script>
-import {info} from '../../api/login.js'
+import {info,logout} from '../../api/login.js'
+import { removeToken } from '../../utils/token';
+// import { removeToken } from '../../utils/token.js';
 export default {
   data() {
     return {
@@ -61,7 +63,18 @@ export default {
     };
   },
   methods: {
-    
+    //   退出登陆
+    logout(){
+        logout().then(res=>{
+            window.console.log(res)
+            if (res.data.code == 200) {
+            removeToken();
+            this.$router.push('/login')
+            }else{
+                this.$message.error(res.data.message)
+            }
+        })
+    }
   },
   created() {
     info().then(res=>{
