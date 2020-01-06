@@ -29,3 +29,17 @@ export function register(data){
         data,
       });
 }
+
+
+// 获取用户信息
+export function info(){
+    return axios({
+        method: "get",
+        url: process.env.VUE_APP_BASEURL + "/info",
+        withCredentials: true,
+        headers:{
+          // 当时如何存的值,后面就如何取
+          token:window.localStorage.getItem("heimammtoken")
+        }
+      });
+}

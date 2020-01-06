@@ -1,19 +1,131 @@
 <template>
+  <el-container class="index-container">
+    <el-header class="my-header">
+      <div class="left">
+        <i class="left-icon el-icon-s-operation" @click="isCollapse = !isCollapse"></i>
+        <img src="../../assets/index-logo.png" alt class="left-img" />
+        <span class="left-name">黑马面面</span>
+      </div>
+      <div class="right">
+        <img :src="user.avatar" class="userPic" alt="">
+        <span class="userName">{{user.username}},您好</span>
+        <el-button type="success" class="btnSize" size="mini">退出</el-button>
+      </div>
+    </el-header>
     <el-container>
-  <el-header class="my-header">Header</el-header>
-  <el-container>
-    <el-aside width="200px" class="my-aside">Aside</el-aside>
-    <el-main class="my-main">Main</el-main>
+      <el-aside width="auto" class="my-aside">
+        <!-- 将当前路由绑定到 default-active 上,获取页面跳转以及高亮-->
+        <el-menu
+          router
+          :collapse="isCollapse"
+          :default-active="$route.path"
+          class="el-menu-vertical-demo"
+        >
+          <el-menu-item index="/index/chart">
+            <!-- e-charts -->
+            <i class="el-icon-pie-chart"></i>
+            <span slot="title">数据概览</span>
+          </el-menu-item>
+          <el-menu-item index="/index/user">
+            <i class="el-icon-user"></i>
+            <span slot="title">用户列表</span>
+          </el-menu-item>
+          <el-menu-item index="/index/question">
+            <i class="el-icon-edit-outline"></i>
+            <span slot="title">题库列表</span>
+          </el-menu-item>
+          <el-menu-item index="/index/enterprise">
+            <i class="el-icon-office-building"></i>
+            <span slot="title">企业列表</span>
+          </el-menu-item>
+          <el-menu-item index="/index/subject">
+            <i class="el-icon-notebook-2"></i>
+            <span slot="title">学科列表</span>
+          </el-menu-item>
+        </el-menu>
+      </el-aside>
+      <el-main class="my-main">
+        <router-view></router-view>
+      </el-main>
+    </el-container>
   </el-container>
-</el-container>
 </template>
 
 <script>
+import {info} from '../../api/login.js'
 export default {
+  data() {
+    return {
+      isCollapse: false ,//列表显示隐藏
+      user:{},
+    };
+  },
+  methods: {
     
-}
+  },
+  created() {
+    info().then(res=>{
+        window.console.log(res)
+        this.user = res.data.data
+        this.user.avatar = process.env.VUE_APP_BASEURL + '/' + this.user.avatar
+    })
+  },
+};
 </script>
 
-<style>
-
+<style lang="less">
+.index-container {
+  height: 100%;
+  .my-header {
+    // background-color: aqua;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    .left {
+      display: flex;
+      align-content: center;
+      align-items: center;
+      .left-icon {
+        font-size: 24px;
+        margin-right: 22px;
+      }
+      .left-name {
+          font-size: 22px;
+          color:rgba(73,161,255,1);
+      }
+      .left-img {
+          width: 33px;
+          height: 28px;
+          margin-right: 12px;
+      }
+    }
+    .right{
+        display: flex;
+        align-items: center;
+            
+        .userPic{
+            width: 43px;
+            height: 43px;
+            margin-right: 12px;
+        }
+        .userName{
+            // width: 63px;
+            height: 15px;
+            font-size: 14px;
+            margin-right: 28px;
+        }
+    }
+  }
+  // .my-aside {
+  //     background-color: yellowgreen
+  // }
+  .my-main {
+    background-color: skyblue;
+  }
+  // 列表伸缩流畅
+  .el-menu-vertical-demo:not(.el-menu--collapse) {
+    width: 200px;
+    min-height: 400px;
+  }
+}
 </style>

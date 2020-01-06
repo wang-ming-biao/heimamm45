@@ -204,7 +204,7 @@ export default {
             min: 6,
             max: 18,
             message: "长度在 6 到 18 个字符",
-            trigger: "change"
+            trigger: "blur"
           }
         ],
         GPcode: [
@@ -248,10 +248,10 @@ export default {
           
         }).then(res => {
           if (res.data.code == 200) {
-            return this.$message({
-              message: "登录成功",
-              type: "warning"
-            });
+            // 保存token
+            window.localStorage.setItem('heimammtoken',res.data.data.token)
+            //登陆成功跳转首页
+            this.$router.push('/index')
           } else {
             window.console.log(res);
             return this.$message({
@@ -309,7 +309,7 @@ export default {
             clearInterval(interId)
             this.btnMessage = "获取手机验证码"
           }
-        },1000)
+        },100)
         getCode({
           code: this.form.GPcode,
           phone: this.form.phone
@@ -335,7 +335,13 @@ export default {
               rcode:this.form.rcode,//手机验证码
               avatar:this.form.avatar,//用户头像
             }).then(res=>{
-              window.console.log(res)
+              if (res.data.code == 200) {
+                this.$message.success('注册成功')
+                // 注册成功后清除表单内容
+                this.$refs.rulesShadow.resetFields();
+                // 关闭注册表单
+                this.dialogFormVisible = false
+              }
             })
           } else {
             this.$message.error('格式不对!请重新输入!')
