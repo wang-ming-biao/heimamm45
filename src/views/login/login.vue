@@ -48,13 +48,14 @@
       <el-button type="primary" class="my-btn" @click="dialogFormVisible = true">注册</el-button>
     </div>
     <!-- 遮罩层 -->
-    <el-dialog title="用户注册" prop="avatar" center :visible.sync="dialogFormVisible"  class="maskTitle" width="35%">
+    <el-dialog title="用户注册" center :visible.sync="dialogFormVisible"  class="maskTitle" width="35%">
       <el-form :model="form" :rules="rulesShadow" ref="rulesShadow" class="demo-rulesShadow">
         <!-- 用户头像上传 -->
-        <el-form-item label="头像"  :label-width="formLabelWidth">
+        <el-form-item label="头像"  prop="avatar" :label-width="formLabelWidth">
           <el-upload
             class="avatar-uploader"
-            action="https://jsonplaceholder.typicode.com/posts/"
+            :action="uploadUrl"
+            name="image"
             :show-file-list="false"
             :on-success="handleAvatarSuccess"
             :before-upload="beforeAvatarUpload"
@@ -94,18 +95,18 @@
         <el-form-item label="验证码" prop="rcode" :label-width="formLabelWidth">
           <el-row>
             <el-col :span="16">
-              <el-input placeholder="请输入右侧的验证码" prefix-icon="el-icon-key" v-model="form.rcode"></el-input>
+              <el-input placeholder="请输入手机验证码" prefix-icon="el-icon-key" v-model="form.rcode"></el-input>
             </el-col>
             <el-col :span="6" :offset="2" class="code-col">
               <!-- <img class="shadow-img" @click="codeChange" :src="regCodeUrl" alt /> -->
-              <el-button type="primary" plain>获取验证码</el-button>
+              <el-button type="primary" plain @click="getMessage()" :disabled="delayTime !=0">{{btnMessage}}</el-button>
             </el-col>
           </el-row>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
+        <el-button type="primary"  @click="btnRegister">确 定</el-button>
       </div>
     </el-dialog>
     <img class="img" src="../../assets/login_banner_ele.png" alt />
@@ -114,7 +115,7 @@
 
 <script>
 // 导入抽取好的axios
-import {login} from '../../api/login'
+import {login,getCode,register} from '../../api/login'
 // 当输入框失去焦点时调用这里的方法
 const validatePhone = (rule, value, callback) => {
   if (value === "") {
@@ -150,7 +151,11 @@ export default {
     return {
       codeUrl: process.env.VUE_APP_BASEURL + "/captcha?type=login",//登陆验证码地址
         regCodeUrl: process.env.VUE_APP_BASEURL + "/captcha?type=sendsms",//注册验证码地址
+      imgUrl:'',//本地预览图片地址
       imageUrl: "", //用户头像上传
+      uploadUrl: process.env.VUE_APP_BASEURL +'/uploads',//图片上传地址
+      delayTime:0,//获取验证码倒计时
+      btnMessage:'获取手机验证码',
       ruleForm: {
         name: "", //输入框绑定
         password: "", //密码框
@@ -189,7 +194,8 @@ export default {
         desc: ""
       },
       rulesShadow: {
-        email:[{required: true,trigger: "blur",validator:validateEmail,}],
+        avatar:[{required: true,trigger: "change",message:"头像不能为空"}],
+        email:[{required: true,trigger: "blur",validator:validateEmail}],
         // 手机号码验证
         phone: [{ required: true, validator: validatePhone, trigger: "blur" }],
         password: [
@@ -207,7 +213,7 @@ export default {
         ],
         name: [
           { required: true, message: "请输入昵称", trigger: "blur" },
-          { min: 4, max: 18, message: "长度在 4 到 20 个字符", trigger: "change" }
+          { min: 2, max: 6, message: "长度在 4 到 20 个字符", trigger: "change" }
         ],
         rcode: [
           { required: true, message: "请输入验证码", trigger: "blur" },
@@ -268,8 +274,12 @@ export default {
     },
     // 用户头像上传
     handleAvatarSuccess(res, file) {
+      // 生成本地的临时路径
       this.imageUrl = URL.createObjectURL(file.raw);
+      // 保存注册表单的头像
+      this.form.avatar = res.data.file_path;
     },
+    // 用户头像上传前预览
     beforeAvatarUpload(file) {
       const isJPG = file.type === "image/jpeg";
       const isLt2M = file.size / 1024 / 1024 < 2;
@@ -281,6 +291,57 @@ export default {
         this.$message.error("上传头像图片大小不能超过 2MB!");
       }
       return isJPG && isLt2M;
+    },
+    // 获取手机验证码
+    getMessage(){
+      if (this.form.phone == '') {
+        return this.$message.error("手机号不能为空")
+      }
+      if (this.form.GPcode == '') {
+        return this.$message.error("图形码不能为空")
+      }
+      if (this.delayTime == 0) {
+        this.delayTime = 60;
+        const interId = setInterval(()=>{
+          this.delayTime --;
+          this.btnMessage = `还剩下${this.delayTime}秒哦`
+          if (this.delayTime ===0) {
+            clearInterval(interId)
+            this.btnMessage = "获取手机验证码"
+          }
+        },1000)
+        getCode({
+          code: this.form.GPcode,
+          phone: this.form.phone
+        }).then(res=>{
+          if (res.data.code == 200) {
+            this.$message.success('短信验证码是:'+res.data.data.captcha)
+          }else{
+            this.$message.error(res.data.message)
+          }
+        })
+      }
+    },
+    // 点击注册
+    btnRegister(){
+      // 调用  饿了么 封装的表单验证方法进行表单验证
+      this.$refs.rulesShadow.validate((valid) => {
+          if (valid) {
+            register({
+              username:this.form.name,//注册用户名
+              phone:this.form.phone,//注册手机号
+              email:this.form.email,//注册邮箱号
+              password:this.form.password,//注册密码
+              rcode:this.form.rcode,//手机验证码
+              avatar:this.form.avatar,//用户头像
+            }).then(res=>{
+              window.console.log(res)
+            })
+          } else {
+            this.$message.error('格式不对!请重新输入!')
+            return false;
+          }
+        });
     }
   }
 };
