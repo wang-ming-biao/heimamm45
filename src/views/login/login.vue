@@ -116,7 +116,7 @@
 <script>
 // 导入抽取好的axios
 import {login,getCode,register} from '../../api/login'
-// 当输入框失去焦点时调用这里的方法
+// 当输入框失去焦点时调用这里的方法验证手机号
 const validatePhone = (rule, value, callback) => {
   if (value === "") {
     callback(new Error("请输入手机号"));

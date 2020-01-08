@@ -9,7 +9,7 @@
       <div class="right">
         <img :src="user.avatar" class="userPic" alt="">
         <span class="userName">{{user.username}},您好</span>
-        <el-button type="success" class="btnSize" size="mini" @click="logout">退出</el-button>
+        <el-button type="success" class="btnSize" size="mini" @click="open">退出</el-button>
       </div>
     </el-header>
     <el-container>
@@ -59,10 +59,30 @@ export default {
   data() {
     return {
       isCollapse: false ,//列表显示隐藏
-      user:{},
+      user:{},//进入页面后请求的用户详情
     };
   },
   methods: {
+    // 退出确定
+    open() {
+        this.$confirm('此操作将退出网站登录, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning',
+          center: true
+        }).then(() => {
+          this.$message({
+            type: 'success',
+            message: '退出成功!',
+          });
+            this.logout();
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消'
+          });
+        });
+      },
     //   退出登陆
     logout(){
         logout().then(res=>{
@@ -76,9 +96,9 @@ export default {
         })
     }
   },
+  // 进入页面调用created请求用户数据
   created() {
     info().then(res=>{
-        window.console.log(res)
         this.user = res.data.data
         this.user.avatar = process.env.VUE_APP_BASEURL + '/' + this.user.avatar
     })
