@@ -72,14 +72,14 @@
         </el-form-item>
         <!-- 角色 -->
         <el-form-item label="角色" prop="phone" :label-width="formLabelWidth">
-    <el-select v-model="form.email" placeholder="请选择活动区域">
+    <el-select v-model="form.email" placeholder="请选择角色">
       <el-option label="区域一" value="shanghai"></el-option>
       <el-option label="区域二" value="beijing"></el-option>
     </el-select>
   </el-form-item>
         <!-- 状态 -->
         <el-form-item label="状态" prop="phone" :label-width="formLabelWidth">
-    <el-select v-model="form.email" placeholder="请选择活动区域">
+    <el-select v-model="form.email" placeholder="请选择状态">
       <el-option label="区域一" value="shanghai"></el-option>
       <el-option label="区域二" value="beijing"></el-option>
     </el-select>

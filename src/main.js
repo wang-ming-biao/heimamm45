@@ -8,6 +8,7 @@ import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 // 注册 饿了么 ui
 import './style/base.css';
+import './filters/index.js'
 Vue.use(ElementUI);
 Vue.config.productionTip = false
 // window.console.log(process.env.VUE_APP_BASEURL)
