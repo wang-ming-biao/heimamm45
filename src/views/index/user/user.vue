@@ -2,44 +2,55 @@
   <div class="body-box">
       <!-- 上半部分表单 -->
     <el-card class="box-card boxTop">
-      <el-form :inline="true" :model="formInline" class="demo-form-inline">
-        <el-form-item label=" 用户名称">
-          <el-input v-model="formInline.user"></el-input>
+      <el-form :inline="true" :model="formInline" ref="formInline" class="demo-form-inline">
+        <el-form-item label="用户名称" prop="eid">
+          <el-input v-model="formInline.eid"></el-input>
         </el-form-item>
-        <el-form-item label="用户邮箱">
-          <el-input v-model="formInline.user"></el-input>
+        <el-form-item label="用户邮箱" prop="name">
+          <el-input v-model="formInline.name"></el-input>
         </el-form-item>
-        <el-form-item label="角色">
-          <el-select v-model="formInline.region" placeholder="请选择状态">
-            <el-option label="区域一" value="shanghai"></el-option>
-            <el-option label="区域二" value="beijing"></el-option>
+        <el-form-item label="角色" prop="status">
+          <el-select v-model="formInline.status" placeholder="请选择角色">
+            <el-option label="管理员" value="2"></el-option>
+            <el-option label="老师" value="1"></el-option>
+            <el-option label="学生" value="0"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="onSubmit">搜索</el-button>
         </el-form-item>
         <el-form-item>
-          <el-button>清除</el-button>
+          <el-button @click="onRemove">清除</el-button>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" icon="el-icon-plus" @click="dialogFormVisible = true">新增用户</el-button>
+          <el-button type="primary" icon="el-icon-plus" @click="$refs.addDialog.dialogFormVisible = true">新增用户</el-button>
         </el-form-item>
       </el-form>
     </el-card>
     <!-- 下半部分表格 -->
     <el-card class="box-card">
-      <el-table  :data="tableData" border style="width: 100%">
-        <el-table-column fixed  type="index" label="序号" width="80"></el-table-column>
-        <el-table-column prop="name" label="用户名" width="150"></el-table-column>
-        <el-table-column prop="province" label="电话" width="150"></el-table-column>
-        <el-table-column prop="city" label="邮箱" width="150"></el-table-column>
-        <el-table-column prop="address" label="角色" width="300"></el-table-column>
-        <el-table-column prop="zip" label="备注" width="300"></el-table-column>
-        <el-table-column fit label="状态"></el-table-column>
-        <el-table-column  fixed="right" label="操作" width="150">
+      <el-table :model="tableData" :data="tableData" border style="width: 100%">
+        <el-table-column fixed  type="index" label="序号" width="100"></el-table-column>
+        <el-table-column v-model="tableData.username" prop="username" label="用户名" width="200"></el-table-column>
+        <el-table-column v-model="tableData.phone" prop="phone" label="电话" width="200"></el-table-column>
+        <el-table-column v-model="tableData.email" prop="email" label="邮箱" width="300"></el-table-column>
+        <el-table-column v-model="tableData.role" prop="role" label="角色" width="150"></el-table-column>
+        <el-table-column v-model="tableData.remark" prop="remark" label="备注" width="200"></el-table-column>
+          <el-table-column fit prop="status" label="状态">
+        <template slot-scope="scope" >
+            <span v-if="scope.row.status == 1">启用</span>
+            <span v-else class="red">禁用</span>
+        </template>
+          </el-table-column>
+        <el-table-column  fixed="right" label="操作" width="240">
+          <!-- 插槽语法 -->
           <template slot-scope="scope">
-            <el-button @click="handleClick(scope.row)" type="text" size="small">查看</el-button>
-            <el-button type="text" size="small">编辑</el-button>
+            <el-button  type="text" size="small" @click="edits(scope.row)">编辑</el-button>
+            <el-button type="text" size="small" @click="changeEnterprise(scope.row.id)">
+              <span v-if="scope.row.status == 0">启用</span>
+              <span v-else>禁用</span>
+            </el-button>
+            <el-button type="text" @click="removeEnterprise(scope.row.id)" size="small">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -48,173 +59,128 @@
        class="pageBox"
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
-      :current-page="currentPage4"
-      :page-sizes="[100, 200, 300, 400]"
-      :page-size="100"
+      :current-page="page"
+      :page-sizes="pageSizes"
+      :page-size="size"
       layout="total, sizes, prev, pager, next, jumper"
-      :total="400">
+      :total="total">
     </el-pagination>
     </el-card>
-    <!-- 遮罩层 -->
-        <el-dialog title="用户新增" center :visible.sync="dialogFormVisible"  class="maskTitle" width="35%">
-      <el-form :model="form" :rules="rulesShadow" ref="rulesShadow" class="demo-rulesShadow">
-        <!-- 用户名 -->
-        <el-form-item  label="用户名" prop="name" :label-width="formLabelWidth">
-          <el-input v-model="form.name" autocomplete="off"></el-input>
-        </el-form-item>
-        <!-- 邮箱 -->
-        <el-form-item label="邮箱" prop="email" :label-width="formLabelWidth">
-          <el-input v-model="form.email" autocomplete="off"></el-input>
-        </el-form-item>
-        <!-- 电话 -->
-        <el-form-item label="电话" prop="phone" :label-width="formLabelWidth">
-          <el-input v-model="form.phone" autocomplete="off"></el-input>
-        </el-form-item>
-        <!-- 角色 -->
-        <el-form-item label="角色" prop="phone" :label-width="formLabelWidth">
-    <el-select v-model="form.email" placeholder="请选择角色">
-      <el-option label="区域一" value="shanghai"></el-option>
-      <el-option label="区域二" value="beijing"></el-option>
-    </el-select>
-  </el-form-item>
-        <!-- 状态 -->
-        <el-form-item label="状态" prop="phone" :label-width="formLabelWidth">
-    <el-select v-model="form.email" placeholder="请选择状态">
-      <el-option label="区域一" value="shanghai"></el-option>
-      <el-option label="区域二" value="beijing"></el-option>
-    </el-select>
-  </el-form-item>
-                <!-- 用户备注 -->
-        <el-form-item label="用户备注" prop="phone" :label-width="formLabelWidth">
-          <el-input v-model="form.phone" autocomplete="off"></el-input>
-        </el-form-item>
-
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" >确 定</el-button>
-      </div>
-    </el-dialog>
+    <addDialog ref="addDialog"></addDialog>
+    <editDialog ref="editDialog"></editDialog>
   </div>
 </template>
 
 <script>
-// 邮箱验证方法:当输入框失去焦点时调用这里的方法
-  const validateEmail = (rule, value, callback) => {
-    if (value === "") {
-      callback(new Error("邮箱地址不能为空!"));
-    } else {
-      // 定义正则
-      const reg = /\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/;
-      if (reg.test(value) == true) {
-        callback();
-      } else {
-        callback(new Error("请输入正确的邮箱地址!"));
-      }
-    }
-  };
-
-  // 当输入框失去焦点时调用这里的方法验证手机号
-const validatePhone = (rule, value, callback) => {
-  if (value === "") {
-    callback(new Error("请输入手机号"));
-  } else {
-    // 定义正则
-    const reg = /^(0|86|17951)?(13[0-9]|15[012356789]|17[678]|18[0-9]|14[57])[0-9]{8}$/;
-    if (reg.test(value) == true) {
-      callback();
-    } else {
-      callback(new Error("请输入正确的手机号码"));
-    }
-  }
-};
+import addDialog from "./components/addDialog.vue"
+import editDialog from "./components/editDialog.vue"
+import {userList,userStatus,userRemove} from "@/api/user.js"
 export default {
   data() {
     return {
         // 上半部分表单
-      formInline: {
-        user: "",
-        region: ""
-      },
-    //   下半部分表格
-      tableData: [
-        {
-          name: "王小虎",
-          province: "上海",
-          city: "普陀区",
-          address: "上海市普陀区金沙江路 1518 弄",
-          zip: 200333
-        },
-      ],
-    //   分页信息
-        currentPage1: 5,
-        currentPage2: 5,
-        currentPage3: 5,
-        currentPage4: 4,
-    // 遮罩层信息
-    rules: {
-        // 手机号码验证
-        name: [{ required: true, validator: validatePhone, trigger: "blur" }],
-        password: [
-          { required: true, message: "请输入密码", trigger: "blur" },
-          {
-            min: 6,
-            max: 18,
-            message: "长度在 6 到 18 个字符",
-            trigger: "change"
-          }
-        ],
-      },
-      dialogTableVisible: false,
-      dialogFormVisible: false,
-      form: {
-        name: "",//注册用户名
-        email: "",//注册用户邮箱
-        phone: "",//注册手机号
-        delivery: false,
-        type: [],
-        resource: "",
-        desc: ""
-      },
-      rulesShadow: {
-        avatar:[{required: true,trigger: "change",message:"头像不能为空"}],
-        email:[{required: true,trigger: "blur",validator:validateEmail}],
-        // 手机号码验证
-        phone: [{ required: true, validator: validatePhone, trigger: "blur" }],
-        password: [
-          { required: true, message: "请输入密码", trigger: "blur" },
-          {
-            min: 6,
-            max: 18,
-            message: "长度在 6 到 18 个字符",
-            trigger: "blur"
-          }
-        ],
-        name: [
-          { required: true, message: "请输入昵称", trigger: "blur" },
-          { min: 2, max: 8, message: "长度在 2 到 8 个字符", trigger: "change" }
-        ],
-      },
-      formLabelWidth: "80px"//调整标题右边对齐
+      formInline: {},
+    //   下半部分表格内容,通过v-model与表单进行双向绑定
+      tableData: [],
+    // 分页信息
+    pageSizes:[2,4,6,8],//总页容量选项
+    size:2, // 当前页容量
+    page:1, // 默认当前页
+    total:0,// 当前总页数
     };
   },
+  components:{
+    addDialog,//新增用户对话框
+    editDialog,//编辑用户对话框
+  },
   methods: {
-    //   表单方法
-    onSubmit() {
-      window.console.log("submit!");
+    // 获取用户列表
+    getList(){
+      userList({
+        // 将页码与页容量作为请求参数发送给服务器
+        page:this.page, // 页码
+        limit:this.size, // 页容量
+        ...this.formInline,// ...对象,将其内部的值传入
+      }).then(res=>{
+        if (res.code == 200) {
+          // 接受获取到的数据
+          this.total = res.data.pagination.total
+          this.tableData = res.data.items
+        }
+      })
     },
-    //  表格方法
-    handleClick(row) {
-        window.console.log(row);
-      },
+    // 修改用户状态
+    changeEnterprise(id){
+      userStatus({
+        id,
+      }).then(res=>{
+        if (res.code == 200) {
+          // 提示用户
+          this.$message.success("温馨提示:状态切换成功")
+          // 刷新页面
+          this.getList()
+        }
+      })
+    },
+    // 删除用户
+    removeEnterprise(id){
+      this.$confirm('你确定要删除吗', '温馨提示', {
+        confirmButtonText: '残忍删除',
+        cancelButtonText: '再想想',
+        type: 'warning'
+      }).then(() => {
+        // 点击确定删除
+        userRemove({
+      id, //将id传输给用户
+    }).then(res=>{
+      if (res.code == 200) {
+        // 提示用户
+        this.$message.success("删除成功")
+        // 刷新页面
+        this.getList();
+      }
+    })
+      }).catch(() => {});
+    
+    },
+    // 编辑用户
+    edits(val){
+      // 通过ref选择器找到子代
+    this.$refs.editDialog.dialogFormVisible = true;
+    // 将页面传入的值赋值给对话框
+    // JSON.parse()是将JSON字符串转换成JSON对象。
+    // JSON.stringify()是将JSON对象转换成JSON字符串。
+    this.$refs.editDialog.form = JSON.parse(JSON.stringify(val))
+    },
+    //   表单搜索方法
+    onSubmit() {
+      // 通过 ...this.对象 的方法,将表单的数据传入请求中
+      // 然后再调用接口请求数据
+      this.getList();
+    },
+    //   表单清除方法
+    onRemove(){
+      this.$refs.formInline.resetFields();
+      this.getList();
+    },
     //   分页方法
-          handleSizeChange(val) {
-        window.console.log(`每页 ${val} 条`);
+      handleSizeChange(val) {
+        // 在请求数据列表时将页码与页容量传入请求中
+        this.size = val;
+        // 选择页容量后是页面返回到第一页
+        this.page = 1;
+        this.getList();
       },
       handleCurrentChange(val) {
-        window.console.log(`当前页: ${val}`);
+        // window.console.log(`当前页: ${val}`);
+        this.page = val;
+        this.getList();
       }
-  }
+  },
+      // 页面一加载请求用户列表数据
+    created() {
+    this.getList();
+    },
 };
 </script>
 
@@ -247,10 +213,13 @@ export default {
   // 头部标题背景颜色
   .el-dialog__header {
     background-color: rgba(1, 198, 250, 1);
-    color: aliceblue;
     .el-dialog__title {
         color: aliceblue;
         font-weight: 700;
     }
+  }
+  // 禁用文字颜色
+  .red {
+    color: red;
   }
 </style>

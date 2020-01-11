@@ -37,7 +37,13 @@
         <el-table-column v-model="tableData.name" prop="name" label="企业名称" width="150"></el-table-column>
         <el-table-column v-model="tableData.short_name" prop="short_name" label="简称" width="150"></el-table-column>
         <el-table-column v-model="tableData.username" prop="username" label="创建者" width="300"></el-table-column>
-        <el-table-column v-model="tableData.create_time" prop="create_time" label="创建日期" width="300"></el-table-column>
+        <el-table-column v-model="tableData.create_time" prop="create_time" label="创建日期" width="300">
+          <template slot-scope="scope">
+            <span>
+              {{scope.row.create_time | formatTime}}
+            </span>
+          </template>
+        </el-table-column>
           <el-table-column fit prop="status" >
         <template slot-scope="scope" >
             <span v-if="scope.row.status == 1">启用</span>

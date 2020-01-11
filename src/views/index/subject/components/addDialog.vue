@@ -65,13 +65,13 @@ export default {
       intro: this.form.intro,
       remark : this.form.remark,
       }).then(res=>{
-        window.console.log(res)
         if (res.code == 200) {
           // 添加成功后隐藏遮罩层
           this.dialogFormVisible = false
           // 清除表单内容
           this.$refs.NewlyAdded.resetFields();
-          this.$message.success('添加成功')
+          this.$message.success('添加成功');
+          this.$parent.getList();
         }else {
           this.$message.error(res.message)
         }
