@@ -16,7 +16,7 @@
         </el-form-item>
         <!-- 用户角色 -->
         <el-form-item label="角色" prop="role_id" :label-width="formLabelWidth">
-          <el-select v-model="userform.phone" placeholder="请选择角色">
+          <el-select v-model="userform.role_id" placeholder="请选择角色">
             <el-option label="管理员" value="2"></el-option>
             <el-option label="老师" value="3"></el-option>
             <el-option label="学生" value="4"></el-option>
@@ -24,7 +24,7 @@
         </el-form-item>
         <!-- 用户状态 -->
         <el-form-item label="状态" prop="status" :label-width="formLabelWidth">
-          <el-select v-model="userform.phone" placeholder="请选择状态">
+          <el-select v-model="userform.status" placeholder="请选择状态">
             <el-option label="启用" value="1"></el-option>
             <el-option label="禁用" value="0"></el-option>
           </el-select>
@@ -36,13 +36,14 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary"  @click="addEnterprise">确 定</el-button>
+        <el-button type="primary"  @click="addUser">确 定</el-button>
       </div>
     </el-dialog>
 </template>
 
 <script>
 import {userAdd,} from "@/api/user.js"
+import  {validatePhone,validateEmail} from "@/utils/validator.js"
 export default {
     data() {
         return {
@@ -50,18 +51,18 @@ export default {
       dialogTableVisible: false,
       dialogFormVisible: false,
       userform: {
-        eid: "",//用户编号
-        name: "",//用户名称
-        short_name: "",//用户简称
-        intro: "",//用户简介
-        remark: "",//备注
+        // eid: "",//用户编号
+        // name: "",//用户名称
+        // short_name: "",//用户简称
+        // intro: "",//用户简介
+        // remark: "",//备注
       },
       addDialog: {
         // 手机号码验证
-        eid: [{ required: true,message:"用户编号不能为空", trigger: "blur" }],
-        name: [{ required: true,message:"用户名称不能为空", trigger: "blur" }],
-        short_name: [{ required: true,message:"用户简称不能为空", trigger: "blur" }],
-        intro: [{ required: true,message:"用户简介不能为空", trigger: "blur" }],
+        username: [{ required: true,message:"用户编号不能为空", trigger: "blur" }],
+        role_id: [{ required: true,message:"用户角色不能为空", trigger: "blur" }],
+        phone: [{ required: true,validator:validatePhone, trigger: "change" }],
+        email: [{ required: true,validator:validateEmail, trigger: "change" }],
         
       },
       formLabelWidth: "80px"//调整标题右边对齐
@@ -69,7 +70,7 @@ export default {
     },
     methods: {
       // 新增用户
-        addEnterprise(){
+        addUser(){
         userAdd(
           // 将对话框的表单内容传入
           this.userform
@@ -81,7 +82,7 @@ export default {
             // 关闭对话框
             this.dialogFormVisible = false
             // 清除表单数据,需要通过ref选择器进行选中
-            this.$refs.enterpriseform.resetFields();
+            this.$refs.userform.resetFields();
             this.$parent.getList();
           }else {
             this.$message.error(res.message)

@@ -116,6 +116,9 @@
 <script>
 // 导入抽取好的axios
 import {login,getCode,register} from '../../api/login'
+// 导入操作token的方法
+import {saveToken} from '../../utils/token.js'
+
 // 当输入框失去焦点时调用这里的方法验证手机号
 const validatePhone = (rule, value, callback) => {
   if (value === "") {
@@ -130,8 +133,6 @@ const validatePhone = (rule, value, callback) => {
     }
   }
 };
-// 导入操作token的方法
-import {saveToken} from '../../utils/token.js'
 
 // 邮箱验证方法:当输入框失去焦点时调用这里的方法
   const validateEmail = (rule, value, callback) => {

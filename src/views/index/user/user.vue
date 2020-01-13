@@ -3,17 +3,17 @@
       <!-- 上半部分表单 -->
     <el-card class="box-card boxTop">
       <el-form :inline="true" :model="formInline" ref="formInline" class="demo-form-inline">
-        <el-form-item label="用户名称" prop="eid">
-          <el-input v-model="formInline.eid"></el-input>
+        <el-form-item label="用户名称" prop="username">
+          <el-input v-model="formInline.username"></el-input>
         </el-form-item>
-        <el-form-item label="用户邮箱" prop="name">
-          <el-input v-model="formInline.name"></el-input>
+        <el-form-item label="用户邮箱" prop="email">
+          <el-input v-model="formInline.email"></el-input>
         </el-form-item>
-        <el-form-item label="角色" prop="status">
-          <el-select v-model="formInline.status" placeholder="请选择角色">
-            <el-option label="管理员" value="2"></el-option>
-            <el-option label="老师" value="1"></el-option>
-            <el-option label="学生" value="0"></el-option>
+        <el-form-item label="角色" prop="role_id">
+          <el-select v-model="formInline.role_id" placeholder="请选择角色">
+            <el-option label="管理员" :value="2"></el-option>
+            <el-option label="老师" :value="3"></el-option>
+            <el-option label="学生" :value="4"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item>
@@ -150,7 +150,7 @@ export default {
     // 将页面传入的值赋值给对话框
     // JSON.parse()是将JSON字符串转换成JSON对象。
     // JSON.stringify()是将JSON对象转换成JSON字符串。
-    this.$refs.editDialog.form = JSON.parse(JSON.stringify(val))
+    this.$refs.editDialog.userform = JSON.parse(JSON.stringify(val))
     },
     //   表单搜索方法
     onSubmit() {

@@ -15,17 +15,17 @@
         </el-form-item>
         <!-- 用户角色 -->
         <el-form-item label="角色" prop="role_id" :label-width="formLabelWidth">
-          <el-select v-model="userform.phone" placeholder="请选择角色">
-            <el-option label="管理员" value="2"></el-option>
-            <el-option label="老师" value="3"></el-option>
-            <el-option label="学生" value="4"></el-option>
+          <el-select v-model="userform.role_id" placeholder="请选择角色">
+            <el-option label="管理员" :value="2"></el-option>
+            <el-option label="老师" :value="3"></el-option>
+            <el-option label="学生" :value="4"></el-option>
           </el-select>
         </el-form-item>
         <!-- 用户状态 -->
         <el-form-item label="状态" prop="status" :label-width="formLabelWidth">
-          <el-select v-model="userform.phone" placeholder="请选择状态">
-            <el-option label="启用" value="1"></el-option>
-            <el-option label="禁用" value="0"></el-option>
+          <el-select v-model="userform.status" placeholder="请选择状态">
+            <el-option label="启用" :value="1"></el-option>
+            <el-option label="禁用" :value="0"></el-option>
           </el-select>
         </el-form-item>
         <!-- 用户备注 -->
@@ -42,6 +42,7 @@
 
 <script>
 import {userEdit} from "@/api/user.js";
+import { validatePhone,validateEmail} from "@/utils/validator.js"
 export default {
   data() {
     return {
@@ -49,21 +50,19 @@ export default {
       dialogFormVisible: false,
       //   对话框文本
       userform: {
-        eid: "", //学科编号
-        name: "", //学科名称
-        short_name: "", //学科简称
-        intro: "", //学科简称
-        remark: "" //备注
+        // eid: "", //学科编号
+        // name: "", //学科名称
+        // short_name: "", //学科简称
+        // intro: "", //学科简称
+        // remark: "" //备注
       },
       formLabelWidth: "80px",
       //   验证规则
       ruleForm: {
-        eid: [{ required: true, message: "请输入用户编号", trigger: "blur" }],
-        name: [{ required: true, message: "请输入用户名称", trigger: "blur" }],
-        short_name: [
-          { required: true, message: "请输入用户简称", trigger: "blur" }
-        ],
-        intro: [{ required: true, message: "请输入用户简介", trigger: "blur" }]
+        username: [{ required: true, message: "用户名不能为空", trigger: "blur" }],
+        role_id: [{ required: true, message: "角色不能为空", trigger: "blur" }],
+        email: [{ required: true, validator:validateEmail, trigger: "blur" }],
+        phone: [{ required: true, validator:validatePhone, trigger: "blur" }],
       }
     };
   },
@@ -73,7 +72,7 @@ export default {
       this.$refs.ruleForm.validate(valid => {
         if (valid) {
           // 将表单的值作为参数传入学科编辑方法中
-          userEdit(this.form).then(res => {
+          userEdit(this.userform).then(res => {
             // 若验证成功,则弹窗告知用户
             if (res.code == 200) {
               this.$message.success("编辑成功");
