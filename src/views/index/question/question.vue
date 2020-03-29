@@ -5,25 +5,25 @@
       <el-form :inline="true" :model="formInline" class="demo-form-inline">
         <el-row :gutter="24">
           <el-form-item label="学科">
-            <el-select v-model="formInline.region" placeholder="请选择学科">
+            <el-select v-model="formInline.region" prop="subject_id" class="boxSize" placeholder="请选择学科">
               <el-option label="区域一" value="shanghai"></el-option>
               <el-option label="区域二" value="beijing"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="阶段">
-            <el-select v-model="formInline.region" placeholder="请选择阶段">
+            <el-select v-model="formInline.region" prop="subject_id" class="boxSize" placeholder="请选择阶段">
               <el-option label="区域一" value="shanghai"></el-option>
               <el-option label="区域二" value="beijing"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="企业">
-            <el-select v-model="formInline.region" placeholder="请选择企业">
+            <el-select v-model="formInline.region" prop="enterprise_id" class="boxSize" placeholder="请选择企业">
               <el-option label="区域一" value="shanghai"></el-option>
               <el-option label="区域二" value="beijing"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="题型">
-            <el-select v-model="formInline.region" placeholder="请选择题型">
+            <el-select v-model="formInline.region" prop="question_type" class="boxSize" placeholder="请选择题型">
               <el-option label="区域一" value="shanghai"></el-option>
               <el-option label="区域二" value="beijing"></el-option>
             </el-select>
@@ -31,26 +31,26 @@
         </el-row>
         <el-row :gutter="24">
           <el-form-item label="难度">
-            <el-select v-model="formInline.region" placeholder="请选择难度">
+            <el-select v-model="formInline.region" prop="difficulty" class="boxSize" placeholder="请选择难度">
               <el-option label="区域一" value="shanghai"></el-option>
               <el-option label="区域二" value="beijing"></el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="作者">
+          <el-form-item label="作者" prop="username">
             <el-input v-model="formInline.user"></el-input>
           </el-form-item>
           <el-form-item label="状态">
-            <el-select v-model="formInline.region" placeholder="请选择状态">
+            <el-select v-model="formInline.region" prop="status" class="boxSize" placeholder="请选择状态">
               <el-option label="区域一" value="shanghai"></el-option>
               <el-option label="区域二" value="beijing"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="日期">
-            <el-input v-model="formInline.user" suffix-icon="el-icon-date" placeholder="选择日期" ></el-input>
+            <el-input v-model="formInline.user" suffix-icon="el-icon-date" prop="subject_id" class="boxSize" placeholder="选择日期" ></el-input>
           </el-form-item>
         </el-row>
-        <el-form-item label="审批人">
-          <el-input v-model="formInline.user"></el-input>
+        <el-form-item label="标题">
+          <el-input v-model="formInline.user" prop="title" class="titleInput"></el-input>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="onSubmit">搜索</el-button>
@@ -158,5 +158,12 @@ export default {
 }
 .el-form-item {
   margin-left: 30px;
+}
+.boxSize{
+  width: 200px;
+}
+.titleInput{
+  width: 300px;
+  margin: 0;
 }
 </style>

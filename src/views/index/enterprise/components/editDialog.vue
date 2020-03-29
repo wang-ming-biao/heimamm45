@@ -52,6 +52,7 @@ export default {
     };
   },
   methods: {
+    // 编辑企业并将数据发送给服务器
     editEnterprise() {
       // 表单校验,通过ref选择器使用表单方法valdate遍历表单
       this.$refs.ruleForm.validate(valid => {

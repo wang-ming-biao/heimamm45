@@ -1,5 +1,5 @@
 // 导入拦截器插件
-import userRequest from "../utils/sb.js"
+import userRequest from "../utils/request.js"
 // 抽取接口
 
 // 获取用户信息列表

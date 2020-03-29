@@ -83,8 +83,10 @@
 </template>
 
 <script>
+// 遮罩层
 import addDialog from "../subject/components/addDialog";
 import editDialog from "../subject/components/editDialog";
+// 导入请求数据接口方法
 import { subjectList, subjectStatus, subjectRemove } from "@/api/subject.js";
 // 导入moment插件
 // import formatTime from "../../../filters/index.js"

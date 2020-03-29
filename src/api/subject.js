@@ -1,5 +1,5 @@
 // 导入请求拦截器
-import subjectRequest from "../utils/sb.js"
+import subjectRequest from "../utils/request.js"
 // 抽取接口方法
 // 获取列表
 export function subjectList(params){

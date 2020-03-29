@@ -62,6 +62,7 @@
           </template>
         </el-table-column>
       </el-table>
+      <!-- 分页器 -->
        <el-pagination
        background
        class="pageBox"
@@ -122,6 +123,8 @@ export default {
       enterpriseStatus({
         id,
       }).then(res=>{
+        // window.console.log(res)
+        // 根据返回的结果执行后续代码
         if (res.code == 200) {
           // 提示用户
           this.$message.success("温馨提示:状态切换成功")
