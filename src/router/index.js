@@ -18,85 +18,96 @@ import { getToken, removeToken } from '@/utils/token.js'
 import { info } from '@/api/login.js'
 // 按需导入 message弹框
 import { Message } from 'element-ui'
+import store from '../store'
 // 注册Vue.use
 Vue.use(VueRouter)
 // 实例化router
 const router = new VueRouter({
-    routes:[
+    routes: [
         {
-            path:'/index',
-            component:index,
-            children:[
+            path: '/index',
+            component: index,
+            children: [
                 {
-                    path:'/',
-                    component:user
+                    path: '/',
+                    component: user
                 },
                 {
-                    path:'user',
-                    component:user
+                    path: 'user',
+                    component: user
                 },
                 {
-                    path:'enterprise',
-                    component:enterprise
+                    path: 'enterprise',
+                    component: enterprise
                 },
                 {
-                    path:'question',
-                    component:question
+                    path: 'question',
+                    component: question
                 },
                 {
-                    path:'subject',
-                    component:subject
+                    path: 'subject',
+                    component: subject
                 },
                 {
-                    path:'chart',
-                    component:chart
+                    path: 'chart',
+                    component: chart
                 },
             ]
         },
         {
-            path:"/login",
-            component:login
+            path: "/login",
+            component: login
         },
         {
-            path:"/",
-            component:login
+            path: "/",
+            component: login
         },
     ]
 });
 // 添加有个导航白名单
-const whitePaths = [ '/login' ]
+const whitePaths = ['/login']
 // 注册导航守卫
 router.beforeEach((to, from, next) => {
     // 如果当前去的是登录页面,直接放行
-    if ( whitePaths.includes(to.path.toLocaleLowerCase()) ) {
+    if (whitePaths.includes(to.path.toLocaleLowerCase())) {
         // 如果白名单中包含要去的页面的路径,那么就放行
         next()
     } else {
-    // 获取到用户的存储在本地的token
-    const token = getToken()
-    if(token === null) {
-        // 使用按需导入的Message弹框
-    Message.warning('没有登陆哦!请先登录')
-    next('/login')
-    } else {
-        // 如果token存在,那么就放过去
-        // 先判断用户的token是否是伪造的
-        info().then(res=>{
-            // 在请求数据之前,先判断用户的token是否还有效
-            if (res.data.code === 206) {
-              // 证明用户的token有误,需要重新登录
-              Message.warning('登录已过期,请重新登录!')
-              // 删除本地用户错误或已过期的token
-              removeToken()
-              next('/login')
-            }
-            // 保存数据
-            //   this.user = res.data.data
-              // 头像没有基地址,自己进行拼接
-            //   this.user.avatar = process.env.VUE_APP_BASEURL + '/' + this.user.avatar
-          })
+        // 获取到用户的存储在本地的token
+        const token = getToken()
+        if (token === null) {
+            // 使用按需导入的Message弹框
+            Message.warning('没有登陆哦!请先登录')
+            next('/login')
+        } else {
+            // 如果token存在,那么就放过去
+            // 先判断用户的token是否是伪造的
+            info().then(res => {
+                // 在请求数据之前,先判断用户的token是否还有效
+                if (res.data.code === 206) {
+                    // 证明用户的token有误,需要重新登录
+                    Message.warning('登录已过期,请重新登录!')
+                    // 删除本地用户错误或已过期的token
+                    removeToken()
+                    next('/login')
+                } else {
+                    // 判断用户的状态,若等于0就是禁用状态
+                    if (res.data.data.status === 0) {
+                        Message.warning('你当前是禁用状态,请联系管理员将你启用')
+                        next('/login')
+                    } else {
+                        // 否则的话就是启用状态
+                        // 保存数据
+                        store.state.user = res.data.data
+                        // 头像没有基地址,自己进行拼接
+                        store.state.user.avatar = process.env.VUE_APP_BASEURL + '/' + store.state.user.avatar
+                        // 代码继续往下走
+                        next()
+                    }
+                    }
+            })
+        }
     }
-    }
-  })
+})
 // 将路由暴露出去
 export default router

@@ -2,6 +2,8 @@ import Vue from 'vue'
 import App from './App.vue'
 // 导入路由对象
 import router from './router/index'
+// 导入vuex对象
+import store from './store/index'
 // 导入element ui
 import ElementUI from 'element-ui';
 // 导入 饿了么 的css
@@ -14,5 +16,6 @@ Vue.config.productionTip = false
 // window.console.log(process.env.VUE_APP_BASEURL)
 new Vue({
   router,
+  store,
   render: h => h(App),
 }).$mount('#app')

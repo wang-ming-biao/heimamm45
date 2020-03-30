@@ -7,8 +7,8 @@
         <span class="left-name">黑马面面</span>
       </div>
       <div class="right">
-        <img :src="user.avatar" class="userPic" alt="">
-        <span class="userName">{{user.username}},您好</span>
+        <img :src="getUser.avatar" class="userPic" alt="">
+        <span class="userName">{{getUser.username}},您好</span>
         <el-button type="success" class="btnSize" size="mini" @click="open">退出</el-button>
       </div>
     </el-header>
@@ -60,7 +60,6 @@ export default {
   data() {
     return {
       isCollapse: false ,//列表显示隐藏
-      user:{},//进入页面后请求的用户详情
     };
   },
   methods: {
@@ -72,24 +71,29 @@ export default {
           type: 'warning',
           center: true
         }).then(() => {
+          // 用户点击退出
           this.$message({
             type: 'success',
             message: '退出成功!',
           });
+          // 调用退出方法
             this.logout();
         }).catch(() => {
+          // 用户点击取消退出
           this.$message({
             type: 'info',
             message: '已取消'
           });
         });
       },
-    //   退出登陆
+    //   退出登陆方法
     logout(){
         logout().then(res=>{
-            window.console.log(res)
             if (res.data.code == 200) {
+              // 退出成功后清除本地token
             removeToken();
+            // 清除本地数据
+            this.$store.state.user = undefined
             this.$router.push('/login')
             }else{
                 this.$message.error(res.data.message)
@@ -97,19 +101,13 @@ export default {
         })
     }
   },
-  // 在尽可能早的时候进行登录判断
-  // beforeCreate () {
-  //   // 获取到用户的存储在本地的token
-  //   const token = getToken()
-  //   if(token === null) {
-  //     this.$message.success('没有登陆哦!请先登录')
-  //     this.$router.push('/login')
-  //   }
-  // },
-  // 进入页面调用created请求用户数据
-  // created() {
-    
-  // },
+  // 计算属性
+  computed: {
+    getUser () {
+    // 简化用户获取的数据,将vuex中的数据经过计算属性返回出去
+      return this.$store.state.user
+    }
+  }
 };
 </script>
 
