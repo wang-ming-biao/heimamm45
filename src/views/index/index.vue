@@ -56,6 +56,7 @@ import {info,logout} from '../../api/login.js'
 import { removeToken } from '../../utils/token';
 // import { removeToken } from '../../utils/token.js';
 export default {
+  name: 'user',
   data() {
     return {
       isCollapse: false ,//列表显示隐藏

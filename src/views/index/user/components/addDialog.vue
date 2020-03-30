@@ -43,6 +43,7 @@
 
 <script>
 import {userAdd,} from "@/api/user.js"
+// 导入封装的邮箱与手机验证方法
 import  {validatePhone,validateEmail} from "@/utils/validator.js"
 export default {
     data() {
@@ -58,12 +59,13 @@ export default {
         // remark: "",//备注
       },
       addDialog: {
-        // 手机号码验证
+        // 用户名非空验证
         username: [{ required: true,message:"用户编号不能为空", trigger: "blur" }],
+        // 用户角色非空验证
         role_id: [{ required: true,message:"用户角色不能为空", trigger: "blur" }],
+        // 手机号与邮箱格式验证
         phone: [{ required: true,validator:validatePhone, trigger: "change" }],
-        email: [{ required: true,validator:validateEmail, trigger: "change" }],
-        
+        email: [{ required: true,validator:validateEmail, trigger: "change" }]
       },
       formLabelWidth: "80px"//调整标题右边对齐
         }
