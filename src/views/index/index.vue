@@ -52,7 +52,7 @@
 </template>
 
 <script>
-import {info,logout} from '../../api/login.js'
+import { logout } from '../../api/login.js'
 import { removeToken } from '../../utils/token';
 // import { removeToken } from '../../utils/token.js';
 export default {
@@ -97,13 +97,19 @@ export default {
         })
     }
   },
+  // 在尽可能早的时候进行登录判断
+  // beforeCreate () {
+  //   // 获取到用户的存储在本地的token
+  //   const token = getToken()
+  //   if(token === null) {
+  //     this.$message.success('没有登陆哦!请先登录')
+  //     this.$router.push('/login')
+  //   }
+  // },
   // 进入页面调用created请求用户数据
-  created() {
-    info().then(res=>{
-        this.user = res.data.data
-        this.user.avatar = process.env.VUE_APP_BASEURL + '/' + this.user.avatar
-    })
-  },
+  // created() {
+    
+  // },
 };
 </script>
 
