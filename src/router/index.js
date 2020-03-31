@@ -27,40 +27,68 @@ const router = new VueRouter({
         {
             path: '/index',
             component: index,
+            // 创建一个路由元信息,以此为依据,判断用户是否可以进入该页面
+            meta: {
+                roles: [ "超级管理员","管理员", "老师", "学生" ]
+            },
             children: [
                 {
                     path: '/',
-                    component: user
+                    component: subject,
+                    meta: {
+                        roles: [ "超级管理员","管理员", "老师", "学生" ]
+                    }
                 },
                 {
                     path: 'user',
-                    component: user
+                    component: user,
+                    meta: {
+                        roles: [ "超级管理员","管理员"]
+                    }
                 },
                 {
                     path: 'enterprise',
-                    component: enterprise
+                    component: enterprise,
+                    meta: {
+                        roles: [ "超级管理员","管理员", "老师"]
+                    }
                 },
                 {
                     path: 'question',
-                    component: question
+                    component: question,
+                    meta: {
+                        roles: [ "超级管理员","管理员", "老师" ]
+                    }
                 },
                 {
                     path: 'subject',
-                    component: subject
+                    component: subject,
+                    meta: {
+                        roles: [ "超级管理员","管理员", "老师", "学生" ]
+                    }
                 },
                 {
                     path: 'chart',
-                    component: chart
+                    component: chart,
+                    meta: {
+                        roles: [ "超级管理员","管理员", "老师", "学生" ]
+                    }
                 },
             ]
         },
         {
             path: "/login",
-            component: login
+            component: login,
+            meta: {
+                roles: [ "超级管理员","管理员", "老师", "学生" ]
+            }
         },
         {
             path: "/",
-            component: login
+            component: login,
+            meta: {
+                roles: [ "超级管理员","管理员", "老师", "学生" ]
+            }
         },
     ]
 });
@@ -101,8 +129,14 @@ router.beforeEach((to, from, next) => {
                         store.state.user = res.data.data
                         // 头像没有基地址,自己进行拼接
                         store.state.user.avatar = process.env.VUE_APP_BASEURL + '/' + store.state.user.avatar
-                        // 代码继续往下走
-                        next()
+                        // 权限的匹配,通过路由元信息中的值 和当前用户的 角色 来匹配
+                        if ( to.meta.roles.includes(store.state.user.role) === true ) {
+                            // 通过 to 点出meta中的路由元信息,通过的话代码继续往下走
+                            next()
+                        } else {
+                            // 代表用户没有在权限中,提示用户不可同行
+                            Message.warning('您没有访问权限哦!')
+                        }
                     }
                     }
             })
