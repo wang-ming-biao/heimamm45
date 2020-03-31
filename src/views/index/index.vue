@@ -27,7 +27,7 @@
             <i class="el-icon-pie-chart"></i>
             <span slot="title">数据概览</span>
           </el-menu-item>
-          <!-- 用户 -->
+          <!-- 用户 在导航守卫中设置权限主要是为了防止用户收藏地址,设置了权限后,用户收藏了地址也无法进入 -->
           <el-menu-item v-if="[ '超级管理员','管理员' ].includes(getUser.role) === true" index="/index/user">
             <i class="el-icon-user"></i>
             <span slot="title">用户列表</span>

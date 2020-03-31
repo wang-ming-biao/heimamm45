@@ -42,7 +42,8 @@
             <span v-else class="red">禁用</span>
         </template>
           </el-table-column>
-        <el-table-column  fixed="right" label="操作" width="240">
+          <!-- 功能权限,只有超级管理员才有权限对用户进行增删改查,而管理员只能查看用户信息 -->
+        <el-table-column  v-if="['超级管理员'].includes(getUser.role) === true" fixed="right" label="操作" width="240">
           <!-- 插槽语法 -->
           <template slot-scope="scope">
             <el-button  type="text" size="small" @click="edits(scope.row)">编辑</el-button>
@@ -177,10 +178,17 @@ export default {
         this.getList();
       }
   },
+  // 计算属性
+  computed: {
+    // 从vuex中取得存储的数据
+    getUser () {
+      return this.$store.state.user
+    }
+  },
       // 页面一加载请求用户列表数据
     created() {
     this.getList();
-    },
+    }
 };
 </script>
 
