@@ -92,7 +92,7 @@ const router = new VueRouter({
         },
     ]
 });
-// 添加有个导航白名单
+// 添加一个导航白名单
 const whitePaths = ['/login']
 // 注册导航守卫
 router.beforeEach((to, from, next) => {

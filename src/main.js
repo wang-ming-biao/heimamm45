@@ -1,4 +1,6 @@
+// 导入vue实例
 import Vue from 'vue'
+// 导入App.vue文件
 import App from './App.vue'
 // 导入路由对象
 import router from './router/index'
