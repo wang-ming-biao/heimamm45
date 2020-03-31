@@ -131,7 +131,7 @@ router.beforeEach((to, from, next) => {
                         store.state.user.avatar = process.env.VUE_APP_BASEURL + '/' + store.state.user.avatar
                         // 权限的匹配,通过路由元信息中的值 和当前用户的 角色 来匹配
                         if ( to.meta.roles.includes(store.state.user.role) === true ) {
-                            // 通过 to 点出meta中的路由元信息,通过的话代码继续往下走
+                            // 通过 to 点出meta中的路由元信息,若路由元信息包含用户这个角色的话就放行
                             next()
                         } else {
                             // 代表用户没有在权限中,提示用户不可同行
