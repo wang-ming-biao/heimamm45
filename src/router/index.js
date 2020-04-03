@@ -27,18 +27,13 @@ const router = new VueRouter({
         {
             path: '/index',
             component: index,
+            // 路由重定向,当匹配到一个值后,再跳转到一个页面
+            redirect: "/index/subject",
             // 创建一个路由元信息,以此为依据,判断用户是否可以进入该页面
             meta: {
                 roles: [ "超级管理员","管理员", "老师", "学生" ]
             },
             children: [
-                {
-                    path: '/',
-                    component: subject,
-                    meta: {
-                        roles: [ "超级管理员","管理员", "老师", "学生" ]
-                    }
-                },
                 {
                     path: 'user',
                     component: user,

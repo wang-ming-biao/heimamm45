@@ -5,25 +5,23 @@
       <el-form :inline="true" :model="formInline" class="demo-form-inline">
         <el-row :gutter="24">
           <el-form-item label="学科">
-            <el-select v-model="formInline.region" prop="subject_id" class="boxSize" placeholder="请选择学科">
-              <el-option label="区域一" value="shanghai"></el-option>
-              <el-option label="区域二" value="beijing"></el-option>
+            <el-select v-model="formInline" prop="subject_id" class="boxSize" placeholder="请选择学科">
+              <el-option v-for="(item) in subjectList" :key="item.id" :label="item.name" :value="item.id"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="阶段">
-            <el-select v-model="formInline.region" prop="subject_id" class="boxSize" placeholder="请选择阶段">
+            <el-select v-model="formInline" prop="subject_id" class="boxSize" placeholder="请选择阶段">
               <el-option label="区域一" value="shanghai"></el-option>
               <el-option label="区域二" value="beijing"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="企业">
-            <el-select v-model="formInline.region" prop="enterprise_id" class="boxSize" placeholder="请选择企业">
-              <el-option label="区域一" value="shanghai"></el-option>
-              <el-option label="区域二" value="beijing"></el-option>
+            <el-select v-model="formInline" prop="enterprise_id" class="boxSize" placeholder="请选择企业">
+              <el-option v-for="item in enterpriseList" :key="item.id" :label="item.name" value="shanghai"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="题型">
-            <el-select v-model="formInline.region" prop="question_type" class="boxSize" placeholder="请选择题型">
+            <el-select v-model="formInline" prop="question_type" class="boxSize" placeholder="请选择题型">
               <el-option label="区域一" value="shanghai"></el-option>
               <el-option label="区域二" value="beijing"></el-option>
             </el-select>
@@ -31,7 +29,7 @@
         </el-row>
         <el-row :gutter="24">
           <el-form-item label="难度">
-            <el-select v-model="formInline.region" prop="difficulty" class="boxSize" placeholder="请选择难度">
+            <el-select v-model="formInline" prop="difficulty" class="boxSize" placeholder="请选择难度">
               <el-option label="区域一" value="shanghai"></el-option>
               <el-option label="区域二" value="beijing"></el-option>
             </el-select>
@@ -40,7 +38,7 @@
             <el-input v-model="formInline.user"></el-input>
           </el-form-item>
           <el-form-item label="状态">
-            <el-select v-model="formInline.region" prop="status" class="boxSize" placeholder="请选择状态">
+            <el-select v-model="formInline" prop="status" class="boxSize" placeholder="请选择状态">
               <el-option label="区域一" value="shanghai"></el-option>
               <el-option label="区域二" value="beijing"></el-option>
             </el-select>
@@ -59,13 +57,13 @@
           <el-button>清除</el-button>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" icon="el-icon-plus" @click="dialogFormVisible = true">新增试题</el-button>
+          <el-button type="primary" icon="el-icon-plus" @click="$refs.addDialog.dialogFormVisible = true">新增试题</el-button>
         </el-form-item>
       </el-form>
     </el-card>
     <!-- 下半部分表格 -->
     <el-card class="box-card">
-      <el-table :data="tableData" border style="width: 100%">
+      <el-table  border style="width: 100%">
         <el-table-column fixed type="index" label="序号" width="80"></el-table-column>
         <el-table-column prop="subject" label="题目" width="150"></el-table-column>
         <el-table-column prop="stage" label="学科.阶段" width="150"></el-table-column>
@@ -86,38 +84,40 @@
         class="pageBox"
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
-        :current-page="currentPage4"
-        :page-sizes="[100, 200, 300, 400]"
-        :page-size="100"
+        :current-page="Page"
+        :page-sizes="pageSize"
+        :page-size="total"
         layout="total, sizes, prev, pager, next, jumper"
-        :total="400"
+        :total="total"
       ></el-pagination>
     </el-card>
+    <addDialog ref="addDialog" />
   </div>
 </template>
 
 <script>
+// 导入获取学科列表的方法
+import { subjectList } from '@/api/subject'
+// 导入获取企业数据方法
+import { enterpriseList } from '@/api/enterprise'
+// 导入新增试题组件
+import addDialog from './components/addDialog'
 export default {
+  components : {
+    addDialog
+  },
   data() {
     return {
       // 上半部分表单
-      formInline: {
-        user: "",
-        region: ""
-      },
-      //   下半部分表格
-      tableData: [
-        {
-          subject: "王小虎",//题目
-          stage: "上海",//阶段
-          Question: "普陀区", //题型
-          address: "上海市普陀区金沙江路 1518 弄",//题型
-          enterprise: '黑马',//企业
-          creator:"管理员",//创建者
-          state:"禁用",//状态
-          Traffic:0  ,//访问量
-        }
-      ]
+      formInline: {},
+      // 页容量
+      Page: 4,
+      // 页容量选项
+      pageSize: [2,4,6,8],
+      // 总条数
+      total: 0,
+      subjectList: [], // 企业数据
+      enterpriseList: []
     };
   },
   methods: {
@@ -136,6 +136,16 @@ export default {
     handleCurrentChange(val) {
       window.console.log(`当前页: ${val}`);
     }
+  },
+  created () {
+    // 获取学科数据
+    subjectList().then(res=>{
+      this.subjectList = res.data.items
+    }),
+    // 获取企业数据
+    enterpriseList().then(res =>{
+      this.enterpriseList = res.data.items
+    })
   }
 };
 </script>
