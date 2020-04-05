@@ -1,18 +1,19 @@
 <template >
+<!-- 编辑题库 -->
   <!-- opened : 饿了么提供的表单回调,对话框完全打开之后触发 -->
   <el-dialog
     @opened="opened"
     class="question-add"
     fullscreen
-    title="新增题库测试"
+    title="编辑题库测试"
     :visible.sync="dialogFormVisible"
     center
   >
     <!-- 给表单外部加宽度,并使其居中 -->
-    <el-form :label-position="labelPosition" ref="addForm" class="question-form" :model="addForm" :rules="addRules">
+    <el-form :label-position="labelPosition" ref="editForm" class="question-form" :model="editForm" :rules="editRules">
       <!-- 学科  subject -->
       <el-form-item label="学科" prop="subject" :label-width="formLabelWidth">
-        <el-select v-model="addForm.subject" class="boxSize" placeholder="请选择学科">
+        <el-select v-model="editForm.subject" class="boxSize" placeholder="请选择学科">
           <el-option
             v-for="(item) in $parent.subjectList"
             :key="item.id"
@@ -23,7 +24,7 @@
         <!-- 阶段 step -->
       </el-form-item>
       <el-form-item label="阶段" prop="step" :label-width="formLabelWidth">
-        <el-select v-model="addForm.step" placeholder="请选择阶段">
+        <el-select v-model="editForm.step" placeholder="请选择阶段">
           <el-option label="初级" :value="1"></el-option>
           <el-option label="中级" :value="2"></el-option>
           <el-option label="高级" :value="3"></el-option>
@@ -31,7 +32,7 @@
       </el-form-item>
       <!-- 企业 enterprise -->
       <el-form-item label="企业" prop="enterprise" :label-width="formLabelWidth">
-        <el-select v-model="addForm.enterprise" prop="enterprise_id" class="boxSize" placeholder="请选择企业" >
+        <el-select v-model="editForm.enterprise" prop="enterprise_id" class="boxSize" placeholder="请选择企业" >
           <el-option v-for="item in $parent.enterpriseList" :key="item.id" :label="item.name" :value="item.id" ></el-option>
         </el-select>
       </el-form-item>
@@ -39,14 +40,14 @@
       <el-form-item label="城市" prop="city" :label-width="formLabelWidth">
         <!-- 级联选择器 -->
         <el-cascader
-          v-model="addForm.city"
+          v-model="editForm.city"
           :options="options"
           :props="{ expandTrigger: 'hover' }"
         ></el-cascader>
       </el-form-item>
       <!-- 题型 type -->
       <el-form-item label="题型" prop="type" :label-width="formLabelWidth">
-        <el-radio-group v-model="addForm.type">
+        <el-radio-group v-model="editForm.type">
           <el-radio :label="1">单选</el-radio>
           <el-radio :label="2">多选</el-radio>
           <el-radio :label="3">简答</el-radio>
@@ -54,7 +55,7 @@
       </el-form-item>
       <!-- 难度 difficulty -->
       <el-form-item label="难度" prop="difficulty" :label-width="formLabelWidth">
-        <el-radio-group v-model="addForm.difficulty">
+        <el-radio-group v-model="editForm.difficulty">
           <el-radio :label="1">简单</el-radio>
           <el-radio :label="2">一般</el-radio>
           <el-radio :label="3">困难</el-radio>
@@ -71,12 +72,12 @@
       <!-- 分割线 -->
       <el-divider></el-divider>
         <!-- 单选区域 -->
-      <el-form-item v-if="addForm.type === 1" label="单选" prop="single_select_answer">
-        <el-radio-group v-model="addForm.single_select_answer">
+      <el-form-item v-if="editForm.type === 1" label="单选" prop="single_select_answer">
+        <el-radio-group v-model="editForm.single_select_answer">
           <!-- 选项A -->
           <div class="option-box">
             <el-radio label="A">A</el-radio>
-            <el-input v-model="addForm.select_options[0].text"></el-input>
+            <el-input v-model="editForm.select_options[0].text"></el-input>
             <!-- 用户头像上传 -->
             <el-upload
               class="avatar-uploader"
@@ -92,7 +93,7 @@
           <!-- 选项B -->
           <div class="option-box">
             <el-radio label="B">B</el-radio>
-            <el-input v-model="addForm.select_options[1].text"></el-input>
+            <el-input v-model="editForm.select_options[1].text"></el-input>
             <!-- 用户头像上传 -->
             <el-upload
               class="avatar-uploader"
@@ -108,7 +109,7 @@
           <!-- 选项C -->
           <div class="option-box">
             <el-radio label="C">C</el-radio>
-            <el-input v-model="addForm.select_options[2].text"></el-input>
+            <el-input v-model="editForm.select_options[2].text"></el-input>
             <!-- 用户头像上传 -->
             <el-upload
               class="avatar-uploader"
@@ -124,7 +125,7 @@
           <!-- 选项D -->
           <div class="option-box">
             <el-radio label="D">D</el-radio>
-            <el-input v-model="addForm.select_options[3].text"></el-input>
+            <el-input v-model="editForm.select_options[3].text"></el-input>
             <!-- 用户头像上传 -->
             <el-upload
               class="avatar-uploader"
@@ -140,12 +141,12 @@
         </el-radio-group>
       </el-form-item>
         <!-- 多选区域 -->
-      <el-form-item v-if="addForm.type === 2" label="多选" prop="multiple_select_answer">
-        <el-checkbox-group v-model="addForm.multiple_select_answer">
+      <el-form-item v-if="editForm.type === 2" label="多选" prop="multiple_select_answer">
+        <el-checkbox-group v-model="editForm.multiple_select_answer">
           <!-- 选项A -->
           <div class="option-box">
             <el-checkbox label="A">A</el-checkbox>
-            <el-input v-model="addForm.select_options[0].text"></el-input>
+            <el-input v-model="editForm.select_options[0].text"></el-input>
             <!-- 用户头像上传 -->
             <el-upload
               class="avatar-uploader"
@@ -161,7 +162,7 @@
           <!-- 选项B -->
           <div class="option-box">
             <el-checkbox label="B">B</el-checkbox>
-            <el-input v-model="addForm.select_options[1].text"></el-input>
+            <el-input v-model="editForm.select_options[1].text"></el-input>
             <!-- 用户头像上传 -->
             <el-upload
               class="avatar-uploader"
@@ -177,7 +178,7 @@
           <!-- 选项C -->
           <div class="option-box">
             <el-checkbox label="C">C</el-checkbox>
-            <el-input v-model="addForm.select_options[2].text"></el-input>
+            <el-input v-model="editForm.select_options[2].text"></el-input>
             <!-- 用户头像上传 -->
             <el-upload
               class="avatar-uploader"
@@ -193,7 +194,7 @@
           <!-- 选项D -->
           <div class="option-box">
             <el-checkbox label="D">D</el-checkbox>
-            <el-input v-model="addForm.select_options[3].text"></el-input>
+            <el-input v-model="editForm.select_options[3].text"></el-input>
             <!-- 用户头像上传 -->
             <el-upload
               class="avatar-uploader"
@@ -209,8 +210,8 @@
         </el-checkbox-group>
       </el-form-item>
         <!-- 简答区域 -->
-      <el-form-item v-if="addForm.type === 3" label="简答" prop="short_answer">
-        <el-input type="textarea" rows="2" v-model="addForm.short_answer">
+      <el-form-item v-if="editForm.type === 3" label="简答" prop="short_answer">
+        <el-input type="textarea" rows="2" v-model="editForm.short_answer">
          
         </el-input>
       </el-form-item>
@@ -241,7 +242,7 @@
       <el-divider></el-divider>
       <!-- 试题备注 remark -->
       <el-form-item label="试题备注" prop="remark">
-        <el-input type="textarea" :autosize="{ minRows: 2, maxRows: 4}" v-model="addForm.remark"></el-input>
+        <el-input type="textarea" :autosize="{ minRows: 2, maxRows: 4}" v-model="editForm.remark"></el-input>
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
@@ -256,10 +257,10 @@
 import { regionData } from "element-china-area-data";
 // 导入富文本编辑器
 import wangeditor from "wangeditor";
-// 导入封装的数据新增接口
-import { questionAdd } from '@/api/question.js'
+// 导入封装的数据编辑接口
+import { questionEdit } from '@/api/question.js'
 export default {
-  name: "addDialog",
+  name: "editDialog",
   data() {
     return {
       dialogFormVisible: false, // 遮罩层是否展开
@@ -267,7 +268,7 @@ export default {
       uploadUrl: process.env.VUE_APP_BASEURL + "/question/upload", // 上传地址
       labelPosition: "left", // 对齐方式
       // 验证表单
-      addForm: {
+      editForm: {
         select_options: [
           {
             label: "A",
@@ -305,7 +306,7 @@ export default {
         remark: "" // 试题备注
       },
       // 表单验证
-      addRules: {
+      editRules: {
         title: [{ required: true, message: "标题不能为空", trigger: "change" }],
         // 标题
         subject: [
@@ -369,7 +370,7 @@ export default {
         // 接收输入文字时触发的内容,通过箭头函数使得this的指向往上一层,并不变
         this.titleEditor.customConfig.onchange = html => {
           // html 即变化之后的内容,将值绑定到表单中
-          this.addForm.title = html;
+          this.editForm.title = html;
         }
         // create方法
         this.titleEditor.create();
@@ -380,39 +381,43 @@ export default {
         // 接收输入文字时触发的内容,通过箭头函数使得this的指向往上一层,并不变
         this.answerEditor.customConfig.onchange = html => {
           // html 即变化之后的内容,将值绑定到表单中
-          this.addForm.answer_analyze = html;
+          this.editForm.answer_analyze = html;
         }
         // create方法
         this.answerEditor.create();
       }
+      // 因为是在编辑页面,需要渲染父组件传入的值,所以需要使用wangeditor的方法解析
+      // 将数据里的试题标题与试题内容拿出来解析
+      this.titleEditor.txt.html(this.editForm.title)
+      this.answerEditor.txt.html(this.editForm.answer_analyze)
     },
     // 选项A的 上传组件钩子
     handleAvatarSuccess(res, file) {
       //  当文件上传成功之后,在本地生成一个地址
       this.imageAUrl = URL.createObjectURL(file.raw);
       // /通过打印res获取服务器返回的url地址,并将其赋值给表单
-      this.addForm.select_options[0].image = res.data.url;
+      this.editForm.select_options[0].image = res.data.url;
     },
     // 选项B的 上传组件钩子
     handleBvatarSuccess(res, file) {
       //  当文件上传成功之后,在本地生成一个地址
       this.imageBUrl = URL.createObjectURL(file.raw);
       // /通过打印res获取服务器返回的url地址,并将其赋值给表单
-      this.addForm.select_options[1].image = res.data.url;
+      this.editForm.select_options[1].image = res.data.url;
     },
     // 选项C的 上传组件钩子
     handleCvatarSuccess(res, file) {
       //  当文件上传成功之后,在本地生成一个地址
       this.imageCUrl = URL.createObjectURL(file.raw);
       // /通过打印res获取服务器返回的url地址,并将其赋值给表单
-      this.addForm.select_options[2].image = res.data.url;
+      this.editForm.select_options[2].image = res.data.url;
     },
     // 选项D的 上传组件钩子
     handleDvatarSuccess(res, file) {
       //  当文件上传成功之后,在本地生成一个地址
       this.imageDUrl = URL.createObjectURL(file.raw);
       // /通过打印res获取服务器返回的url地址,并将其赋值给表单
-      this.addForm.select_options[3].image = res.data.url;
+      this.editForm.select_options[3].image = res.data.url;
     },
     // 图片上传验证逻辑
     beforeAvatarUpload(file) {
@@ -437,7 +442,7 @@ export default {
       //  视频的预览地址
       this.videoUrl = URL.createObjectURL(file.raw);
       // /通过打印res获取服务器返回的url地址,并将其赋值给表单
-      this.addForm.video = res.data.url;
+      this.editForm.video = res.data.url;
     },
     // 视频上传验证逻辑
     beforeVideoUpload(file) {
@@ -456,20 +461,20 @@ export default {
     // 提交数据
     submitForm () {
       // 通过给表单注册一个ref选择器,调用element自带的表单验证方法validate
-      this.$refs.addForm.validate((valid) => {
+      this.$refs.editForm.validate((valid) => {
         if (valid) {
           // 调用表单 上传的额接口,将表单的数据传入.通过.then()得到结果
-          questionAdd(this.addForm).then( res => {
+          questionEdit(this.editForm).then( res => {
         window.console.log(res)
             if (res.code === 200) {
               // 提示用户成功
-              this.$message.success('提交成功')
+              this.$message.success('修改成功')
               // 收起新增框
               this.dialogFormVisible = false
               // 清空表单
-              this.$refs.addForm.resetFields()
+              this.$refs.editForm.resetFields()
               // 使用forEach()遍历单选题的数组,清除不需要的内容
-              this.addForm.select_options.forEach(v => {
+              this.editForm.select_options.forEach(v => {
                 v.text = ''
                 v.image = ''
               })
@@ -483,7 +488,7 @@ export default {
               this.imageBUrl = ''
               this.imageCUrl = ''
               this.imageDUrl = ''
-              // 刷新父页面数据
+              // 刷新父级的数据列表
               this.$parent.getList()
             }
           })

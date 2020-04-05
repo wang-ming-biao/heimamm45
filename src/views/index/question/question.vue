@@ -12,12 +12,11 @@
           <el-form-item label="阶段">
             <el-select v-model="formInline" prop="subject_id" class="boxSize" placeholder="请选择阶段">
               <el-option label="区域一" value="shanghai"></el-option>
-              <el-option label="区域二" value="beijing"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="企业">
             <el-select v-model="formInline" prop="enterprise_id" class="boxSize" placeholder="请选择企业">
-              <el-option v-for="item in enterpriseList" :key="item.id" :label="item.name" value="shanghai"></el-option>
+              <el-option v-for="item in enterpriseList" :key="item.id" :label="item.name" :value="item.id"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="题型">
@@ -44,7 +43,8 @@
             </el-select>
           </el-form-item>
           <el-form-item label="日期">
-            <el-input v-model="formInline.user" suffix-icon="el-icon-date" prop="subject_id" class="boxSize" placeholder="选择日期" ></el-input>
+            <el-date-picker v-model="isDate" type="date" class="boxSize" placeholder="选择日期">
+          </el-date-picker>
           </el-form-item>
         </el-row>
         <el-form-item label="标题">
@@ -63,22 +63,53 @@
     </el-card>
     <!-- 下半部分表格 -->
     <el-card class="box-card">
-      <el-table  border style="width: 100%">
+      <el-table :data="tableData"  border style="width: 100%">
         <el-table-column fixed type="index" label="序号" width="80"></el-table-column>
-        <el-table-column prop="subject" label="题目" width="150"></el-table-column>
-        <el-table-column prop="stage" label="学科.阶段" width="150"></el-table-column>
-        <el-table-column prop="Question" label="题型" width="150"></el-table-column>
-        <el-table-column prop="enterprise" label="企业" width="300"></el-table-column>
-        <el-table-column prop="creator" label="创建者" width="300"></el-table-column>
-        <el-table-column fit prop="state" label="状态"></el-table-column>
-        <el-table-column fit prop="Traffic" label="访问量"></el-table-column>
+        <el-table-column prop="title" label="题目" width="150">
+          <!-- 使用插槽解析富文本 -->
+          <template slot-scope="scope">
+            <div v-html="scope.row.title"></div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="subject_name" label="学科.阶段" width="150">
+          <!-- 
+            var obj = {name: 'jake',age:18}
+            obj['name'] ==>jake
+            obj['age'] ==>18
+            var question = {1:"初级",2:"中级",3:"高级"}
+            question[1] ==>初级
+            question[2] ==>中级
+            {1: '初级',2: '中级',3: '高级'}[scope.row.step] 对象加索引取值,通过服务器给的键
+           -->
+           <template slot-scope="scope">
+             {{ scope.row.subject_name + '.' + {1: '初级',2: '中级',3: '高级'}[scope.row.step] }}
+           </template>
+        </el-table-column>
+        <el-table-column prop="type" label="题型" width="150">
+          <!-- 使用对象[key]来简化编码 -->
+          <template slot-scope="scope">
+            {{ {1: '单选',2: '多选',3: '简答'}[scope.row.type] }}
+            </template>
+        </el-table-column>
+        <el-table-column prop="enterprise_name" label="企业" width="300"></el-table-column>
+        <el-table-column prop="username" label="创建者" width="300"></el-table-column>
+        <el-table-column fit prop="status" label="状态">
+          <template slot-scope="scope">
+            <span v-if="scope.row.status === 1">启用</span>
+            <span v-else  class="red">禁用</span>
+          </template>
+        </el-table-column>
+        <el-table-column fit prop="reads" label="访问量"></el-table-column>
         <el-table-column fixed="right" label="操作" width="150">
           <template slot-scope="scope">
-            <el-button @click="handleClick(scope.row)" type="text" size="small">查看</el-button>
-            <el-button type="text" size="small">编辑</el-button>
+            <!-- 点击编辑进入编辑阶段,将当前点击的东西通过scope.row传入进来 -->
+            <el-button type="text" size="small" @click="enterEdit(scope.row)" >编辑</el-button>
+            <el-button  type="text" size="small">启用</el-button>
+            <el-button  type="text" size="small">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
+      <!-- 页码翻页器 -->
       <el-pagination
         background
         class="pageBox"
@@ -86,12 +117,13 @@
         @current-change="handleCurrentChange"
         :current-page="Page"
         :page-sizes="pageSize"
-        :page-size="total"
+        :page-size="size"
         layout="total, sizes, prev, pager, next, jumper"
         :total="total"
       ></el-pagination>
     </el-card>
     <addDialog ref="addDialog" />
+    <editDialog ref="editDialog" />
   </div>
 </template>
 
@@ -102,32 +134,37 @@ import { subjectList } from '@/api/subject'
 import { enterpriseList } from '@/api/enterprise'
 // 导入新增试题组件
 import addDialog from './components/addDialog'
+// 导入获取题库列表的接口
+import { questionList } from '@/api/question'
+// 引入编辑题目组件
+import editDialog from './components/editDialog'
 export default {
   components : {
-    addDialog
+    addDialog,
+    editDialog
   },
   data() {
     return {
       // 上半部分表单
       formInline: {},
-      // 页容量
-      Page: 4,
+      // 当前页码
+      Page: 1,
+      // 页容量,默认当前页请求多少条
+      size: 4,
       // 页容量选项
       pageSize: [2,4,6,8],
       // 总条数
       total: 0,
-      subjectList: [], // 企业数据
-      enterpriseList: []
+      subjectList: [], // 学科数据
+      enterpriseList: [], // 企业数据
+      tableData: [], // 题库列表
+      isDate: '' // 时间数据
     };
   },
   methods: {
-    //   表单方法
+    // 搜索的方法
     onSubmit() {
-      window.console.log("submit!");
-    },
-    //  表格方法
-    handleClick(row) {
-      window.console.log(row);
+      window.console.log('嘿嘿')
     },
     //   分页方法
     handleSizeChange(val) {
@@ -135,6 +172,73 @@ export default {
     },
     handleCurrentChange(val) {
       window.console.log(`当前页: ${val}`);
+    },
+    // 获取题库
+    getList () {
+      // 调用接口,传入页码页容量
+      questionList({
+        page: this.page
+      }).then( res => {
+        // 将题目数据保存起来
+        this.tableData = res.data.items
+        // 将总页数赋值给翻页器
+        this.total = res.data.pagination.total
+      })
+    },
+    // 点击编辑题目
+    enterEdit (item) {
+      // 唤起编辑款
+      this.$refs.editDialog.dialogFormVisible = true
+      // 把数据设置给弹框,直接赋值会联动,所以要注意深拷贝
+      // 使用 JSON.parse(JSON.stringify(item)) 进行深拷贝,避免影响
+      // this.$refs.editDialog.editForm = JSON.parse(JSON.stringify(item))
+      // 由于直接赋值拿不到城市等数据,所以要先进行数据的切割
+      // 先设置一个常量接收传入的值
+      const editForm = JSON.parse(JSON.stringify(item))
+      // 再将里面的城市数据拿出来切割,以逗号为节点,返回成一个数组(城市数据需要变成数组才能够渲染)
+      editForm.city = editForm.city.split(',')
+      // 多选选项也是一个数组,也去要拿出来进行切割
+      editForm.multiple_select_answer = editForm.multiple_select_answer.split(',')
+      // 排序  数字  字母  默认就可以排序
+      editForm.multiple_select_answer.sort()
+      // 之后把处理好的数据赋值给弹框
+      this.$refs.editDialog.editForm = editForm
+      // 由于页面上渲染后顺序错乱,所以需要将数据重新排列
+      // 定义一个空数组,用来接收重新排序的值
+      const options = []
+      // 遍历select_options里面的数据
+      editForm.select_options.forEach( v =>{
+        // 将等于该项的值重新赋值
+        if(v.label == "A") {
+          options[0] = v
+        } else if (v.label == "B") {
+          options[1] = v
+        } else if (v.label == "C") {
+          options[2] = v
+        } else {
+          options[3] = v
+        }
+      })
+      editForm.select_options = options
+      // 服务器返回的图片没有基地址,也少了一个 '/' 所以需要手动逐个进行拼接
+      // 由于是设置在页面上的本地预览路劲,所以另行设置,(判断非空)
+      if (editForm.select_options[0].image != "") {
+        this.$refs.editDialog.imageAUrl = process.env.VUE_APP_BASEURL + "/" +  editForm.select_options[0].image
+      }
+      if (editForm.select_options[1].image != "") {
+        this.$refs.editDialog.imageBUrl = process.env.VUE_APP_BASEURL + "/" +  editForm.select_options[1].image
+      }
+      if (editForm.select_options[2].image != "") {
+        this.$refs.editDialog.imageCUrl = process.env.VUE_APP_BASEURL + "/" +  editForm.select_options[2].image
+      }
+      if (editForm.select_options[3].image != "") {
+        this.$refs.editDialog.imageDUrl = process.env.VUE_APP_BASEURL + "/" +  editForm.select_options[3].image
+      }
+      // 视频预览地址也要拼接(判断视频地址有没有值之后再进行拼接)
+      if (editForm.video !== "") {
+        this.$refs.editDialog.videoUrl = process.env.VUE_APP_BASEURL + "/" + editForm.video
+      }
+      
     }
   },
   created () {
@@ -145,12 +249,14 @@ export default {
     // 获取企业数据
     enterpriseList().then(res =>{
       this.enterpriseList = res.data.items
-    })
+    }),
+    // 获取题库数据
+    this.getList()
   }
 };
 </script>
 
-<style>
+<style lang="less" scoped >
 /* 卡片样式 */
 .text {
   font-size: 14px;
@@ -169,11 +275,17 @@ export default {
 .el-form-item {
   margin-left: 30px;
 }
-.boxSize{
+/deep/.boxSize{
   width: 200px;
 }
 .titleInput{
   width: 300px;
   margin: 0;
 }
+.red {
+  color: red;
+}
+// .el-date-editor.el-input, .el-date-editor.el-input__inner {
+//   width: 200px;
+// }
 </style>

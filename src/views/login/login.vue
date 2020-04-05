@@ -286,7 +286,7 @@ export default {
     },
     // 用户头像上传前预览
     beforeAvatarUpload(file) {
-      const isJPG = file.type === "image/jpeg";
+      const isJPG = file.type === "image/jpeg" || "image/gif" || "image/png" || "image/jpg" ;
       const isLt2M = file.size / 1024 / 1024 < 2;
 
       if (!isJPG) {
@@ -344,6 +344,8 @@ export default {
                 this.$message.success('注册成功')
                 // 注册成功后清除表单内容
                 this.$refs.rulesShadow.resetFields();
+                // 清除本地预览图片地址
+                this.imageUrl = ""
                 // 关闭注册表单
                 this.dialogFormVisible = false
               }
