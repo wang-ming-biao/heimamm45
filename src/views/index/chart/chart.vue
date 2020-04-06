@@ -2,22 +2,24 @@
   <div class="body-box">
     <!-- 顶部 -->
     <el-card class="box-card boxTop">
-      <el-progress type="circle" :percentage="25">
-        今日新增用户
+      <div>
+        <el-progress type="circle" :percentage="titledata.increment_users">
       </el-progress>
-      <el-progress type="circle" :percentage="25">
-        总用户量
+        <span>今日新增用户</span>
+      </div>
+      <el-progress type="circle" :percentage="titledata.total_users">
+        <span>总用户量</span>
       </el-progress>
-      <el-progress type="circle" :percentage="50">
+      <el-progress type="circle" :percentage="titledata.increment_questions">
         新增试题
       </el-progress>
-      <el-progress type="circle" :percentage="50">
+      <el-progress type="circle" :percentage="titledata.total_questions">
         总试题量
       </el-progress>
-      <el-progress type="circle" :percentage="100">
+      <el-progress type="circle" :percentage="titledata.total_done_questions">
         总刷题量
       </el-progress>
-      <el-progress type="circle" :percentage="100">
+      <el-progress type="circle" :percentage="titledata.personal_questions">
         人均刷题量
       </el-progress>
     </el-card>
@@ -35,7 +37,7 @@ import echarts from "echarts";
 // 导入获取头部数据接口
 import { chartTitle, chartQuestion } from '@/api/chart'
 /*
-total_done_questions: 0
+total_done_questions: 0  
 personal_questions: 0
 total_users: 3
 increment_users: 0
@@ -125,6 +127,7 @@ export default {
 }
 .boxTop {
   margin-bottom: 20px;
+  height: 200px;
 }
 /deep/.el-card__body {
   display: flex;

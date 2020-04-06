@@ -305,23 +305,34 @@ export default {
       if (this.form.GPcode == '') {
         return this.$message.error("图形码不能为空")
       }
+      // 请求手机验证码前先判断时间是否为0
       if (this.delayTime == 0) {
+        // 为0则发送验证码,并将计时器设置为60秒
         this.delayTime = 60;
         const interId = setInterval(()=>{
+          // 在计时器没有归零之前不允许再次触发
           this.delayTime --;
+          // 并且提示用户还有多少秒才能再次请求
           this.btnMessage = `还剩下${this.delayTime}秒哦`
+          // 如果计时器自动归零了
           if (this.delayTime ===0) {
+            // 那么清除计时器
             clearInterval(interId)
+            // 将请求验证码的按钮文字变成   "获取手机验证码"
             this.btnMessage = "获取手机验证码"
           }
         },100)
+        // 调用获取手机验证码的接口
         getCode({
+          // 将图形验证码与手机号传过去
           code: this.form.GPcode,
           phone: this.form.phone
         }).then(res=>{
+          // 接收数据,code正确就显示验证码
           if (res.data.code == 200) {
             this.$message.success('短信验证码是:'+res.data.data.captcha)
           }else{
+            // 错误的话就提示用户错误信息
             this.$message.error(res.data.message)
           }
         })

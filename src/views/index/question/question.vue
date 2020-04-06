@@ -5,50 +5,54 @@
       <el-form :inline="true" :model="formInline" class="demo-form-inline">
         <el-row :gutter="24">
           <el-form-item label="学科">
-            <el-select v-model="formInline" prop="subject_id" class="boxSize" placeholder="请选择学科">
+            <el-select v-model="formInline.subject"  class="boxSize" placeholder="请选择学科">
               <el-option v-for="(item) in subjectList" :key="item.id" :label="item.name" :value="item.id"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="阶段">
-            <el-select v-model="formInline" prop="subject_id" class="boxSize" placeholder="请选择阶段">
-              <el-option label="区域一" value="shanghai"></el-option>
+            <el-select v-model="formInline.step"  class="boxSize" placeholder="请选择阶段">
+              <el-option label="初级" :value="1"></el-option>
+              <el-option label="中级" :value="2"></el-option>
+              <el-option label="高级" :value="3"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="企业">
-            <el-select v-model="formInline" prop="enterprise_id" class="boxSize" placeholder="请选择企业">
+            <el-select v-model="formInline.enterprise"  class="boxSize" placeholder="请选择企业">
               <el-option v-for="item in enterpriseList" :key="item.id" :label="item.name" :value="item.id"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="题型">
-            <el-select v-model="formInline" prop="question_type" class="boxSize" placeholder="请选择题型">
-              <el-option label="区域一" value="shanghai"></el-option>
-              <el-option label="区域二" value="beijing"></el-option>
+            <el-select v-model="formInline.type"  class="boxSize" placeholder="请选择题型">
+              <el-option label="单选" :value="1"></el-option>
+              <el-option label="多选" :value="2"></el-option>
+              <el-option label="简答" :value="3"></el-option>
             </el-select>
           </el-form-item>
         </el-row>
         <el-row :gutter="24">
           <el-form-item label="难度">
-            <el-select v-model="formInline" prop="difficulty" class="boxSize" placeholder="请选择难度">
-              <el-option label="区域一" value="shanghai"></el-option>
-              <el-option label="区域二" value="beijing"></el-option>
+            <el-select v-model="formInline.difficulty"  class="boxSize" placeholder="请选择难度">
+              <el-option label="简单" :value="1"></el-option>
+              <el-option label="一般" :value="2"></el-option>
+              <el-option label="困难" :value="3"></el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="作者" prop="username">
-            <el-input v-model="formInline.user"></el-input>
+          <el-form-item label="作者">
+            <el-input v-model="formInline.username"></el-input>
           </el-form-item>
           <el-form-item label="状态">
-            <el-select v-model="formInline" prop="status" class="boxSize" placeholder="请选择状态">
-              <el-option label="区域一" value="shanghai"></el-option>
-              <el-option label="区域二" value="beijing"></el-option>
+            <el-select v-model="formInline.status"  class="boxSize" placeholder="请选择状态">
+              <el-option label="禁用" :value="0"></el-option>
+              <el-option label="启用" :value="1"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="日期">
-            <el-date-picker v-model="isDate" type="date" class="boxSize" placeholder="选择日期">
+            <el-date-picker v-model="formInline.create_date" type="date" class="boxSize" placeholder="选择日期">
           </el-date-picker>
           </el-form-item>
         </el-row>
         <el-form-item label="标题">
-          <el-input v-model="formInline.user" prop="title" class="titleInput"></el-input>
+          <el-input v-model="formInline.title" class="titleInput"></el-input>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="onSubmit">搜索</el-button>
@@ -146,7 +150,17 @@ export default {
   data() {
     return {
       // 上半部分表单
-      formInline: {},
+      formInline: {
+        subject: '', // 学科名称
+        step: '', // 阶段
+        enterprise: '', // 企业名称
+        type: '', // 题型
+        difficulty: '', // 难度
+        username: '', // 作者
+        status: '', // 状态
+        create_date: '', // 创建日期
+        title: '' // 标题
+      },
       // 当前页码
       Page: 1,
       // 页容量,默认当前页请求多少条
@@ -164,7 +178,18 @@ export default {
   methods: {
     // 搜索的方法
     onSubmit() {
-      window.console.log('嘿嘿')
+      // 调用获取题库列表接口,将页码和搜索框内的值传进去
+      questionList({
+        page: this.Page,
+        limit: this.size,
+        // ...展开运算符,将表单内的值展开
+        ...this.formInline
+      }).then( res => {
+        // 将页码传给本地翻页器
+        this.total = res.data.pagination.total
+        // 将数据保存到本地
+        this.tableData = res.data.items
+      })
     },
     //   分页方法
     handleSizeChange(val) {
@@ -181,6 +206,7 @@ export default {
       }).then( res => {
         // 将题目数据保存起来
         this.tableData = res.data.items
+        window.console.log(this.tableData)
         // 将总页数赋值给翻页器
         this.total = res.data.pagination.total
       })

@@ -181,8 +181,7 @@ export default {
       // this.$refs.editDialog.form = item;//值会实时变动,需要采用下方的深拷贝
       // 深拷贝
       this.$refs.editDialog.form = JSON.parse(JSON.stringify(item));
-    },
-
+    }
   },
 
   // 进入页面请求数据
