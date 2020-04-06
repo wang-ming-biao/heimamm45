@@ -2,7 +2,7 @@
   <div class="body-box">
     <!-- 上半部分表格 -->
     <el-card class="box-card boxTop">
-      <el-form :inline="true" :model="formInline" class="demo-form-inline">
+      <el-form :inline="true" ref="formInline" :model="formInline" class="demo-form-inline">
         <el-row :gutter="24">
           <el-form-item label="学科">
             <el-select v-model="formInline.subject"  class="boxSize" placeholder="请选择学科">
@@ -58,7 +58,7 @@
           <el-button type="primary" @click="onSubmit">搜索</el-button>
         </el-form-item>
         <el-form-item>
-          <el-button>清除</el-button>
+          <el-button @click="remForm()">清除</el-button>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" icon="el-icon-plus" @click="$refs.addDialog.dialogFormVisible = true">新增试题</el-button>
@@ -191,6 +191,18 @@ export default {
         this.tableData = res.data.items
       })
     },
+    // 清除搜索框内容
+    remForm () {
+        this.formInline.subject = '' // 学科名称
+        this.formInline.step = '' // 阶段
+        this.formInline.enterprise = '' // 企业名称
+        this.formInline.type = '' // 题型
+        this.formInline.difficulty = '' // 难度
+        this.formInline.username = '' // 作者
+        this.formInline.status = '' // 状态
+        this.formInline.create_date = '' // 创建日期
+        this.formInline.title = '' // 标题
+    },
     //   分页方法
     handleSizeChange(val) {
       window.console.log(`每页 ${val} 条`);
@@ -206,7 +218,6 @@ export default {
       }).then( res => {
         // 将题目数据保存起来
         this.tableData = res.data.items
-        window.console.log(this.tableData)
         // 将总页数赋值给翻页器
         this.total = res.data.pagination.total
       })
